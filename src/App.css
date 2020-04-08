@@ -1,0 +1,11 @@
+html,
+body,
+#root {
+  height: 100vh;
+  margin: 0;
+}
+
+div.App {
+  height: 100vh;
+  margin: 0;
+}
