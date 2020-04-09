@@ -6,8 +6,8 @@ const secsInMinute = 60;
 const secsInHour = secsInMinute * 60;
 const secsInDay = secsInHour * 24;
 
-function toDDHHMM(time) {
-  const secs = (time - Date.now()) / msInSec;
+function toDDHHMM(time, now) {
+  const secs = (now - time) / msInSec;
 
   if (secs < 0) {
     throw new Error(`${time} passed past date`);
@@ -37,10 +37,11 @@ function toDDHHMM(time) {
   return `${days}${hours}:${minutes}`;
 }
 
-const TimerLabel = ({ time }) => <div>{toDDHHMM(time)}</div>;
+const TimerLabel = ({ time, now }) => <div>{toDDHHMM(time, now)}</div>;
 
 TimerLabel.propTypes = {
   time: PropTypes.instanceOf(Date),
+  now: PropTypes.instanceOf(Date),
 };
 
 export default TimerLabel;
