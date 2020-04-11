@@ -4,6 +4,15 @@ import TimerLabel from '../src/TimerLabel';
 
 describe('TimerLabel', () => {
   const time = new Date(2020, 4, 8, 20, 10, 30);
+  let consoleErrorMock;
+
+  beforeEach(() => {
+    consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
+  });
+
+  afterEach(() => {
+    consoleErrorMock.mockRestore();
+  });
 
   test('renders without crashing', () => {
     shallow(<TimerLabel />);
@@ -20,10 +29,15 @@ describe('TimerLabel', () => {
     expect(wrapper.hasClass('fail')).toEqual(true);
   });
 
-  test('setted state to success', () => {
+  test('set state to success', () => {
     const wrapper = shallow(<TimerLabel state="success" />);
     expect(wrapper.hasClass('timer-label')).toEqual(true);
     expect(wrapper.hasClass('success')).toEqual(true);
+  });
+
+  test('set unknown state throw error', () => {
+    shallow(<TimerLabel state="unknow-state" />);
+    expect(consoleErrorMock).toHaveBeenCalledTimes(1);
   });
 
   test('now date display 00:00', () => {

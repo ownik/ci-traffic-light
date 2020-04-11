@@ -5,62 +5,74 @@ import App from '../src/App';
 import TimerLabel from '../src/TimerLabel';
 
 describe('App', () => {
-  jest
-    .spyOn(Date, 'now')
-    .mockImplementation(() => new Date(2020, 4, 8, 20, 10, 30));
+  describe('Basic App tests', () => {
+    test('renders without crashing', () => {
+      shallow(<App />);
+    });
 
-  test('renders without crashing', () => {
-    shallow(<App />);
+    test('first element must be div', () => {
+      const wrapper = shallow(<App />);
+      expect(wrapper.type()).toBe('div');
+    });
+
+    test('first element default color is red', () => {
+      const wrapper = shallow(<App />);
+      expect(wrapper.get(0).props.style).toHaveProperty(
+        'backgroundColor',
+        'red'
+      );
+    });
   });
 
-  test('first element must be div', () => {
-    const wrapper = shallow(<App />);
-    expect(wrapper.type()).toBe('div');
-  });
+  describe('test TimerLabel integration', () => {
+    let wrapper;
+    let timerLabel;
+    let timerEventMock;
+    let nowDate = new Date(2020, 4, 8, 20, 10, 30);
+    let mockDateNow;
 
-  test('first element default color is red', () => {
-    const wrapper = shallow(<App />);
-    expect(wrapper.get(0).props.style).toHaveProperty('backgroundColor', 'red');
-  });
+    beforeAll(() => {
+      jest.useFakeTimers();
+      mockDateNow = jest.spyOn(Date, 'now').mockImplementation(() => nowDate);
+      wrapper = mount(<App />);
+      timerLabel = wrapper.find(TimerLabel);
+    });
 
-  test('renders single <TimerLabel /> component with mocked now time', () => {
-    const wrapper = mount(<App />);
-    const timerLabel = wrapper.find(TimerLabel);
-    expect(timerLabel).toHaveLength(1);
+    afterAll(() => {
+      timerEventMock.mockRestore();
+      mockDateNow.mockRestore();
+      jest.useRealTimers();
+    });
 
-    expect(timerLabel.props()).toHaveProperty(
-      'time',
-      new Date(2020, 4, 8, 20, 10, 30)
-    );
+    beforeEach(() => {
+      timerEventMock = jest.spyOn(wrapper.instance(), 'timerEvent');
+    });
 
-    expect(timerLabel.text()).toEqual('00:00');
-  });
+    afterEach(() => {
+      timerEventMock.mockClear();
+    });
 
-  test('test timer', () => {
-    jest.useFakeTimers();
+    test('exist single TimerLabel', () => {
+      expect(timerLabel).toHaveLength(1);
+    });
 
-    const wrapper = mount(<App />);
-    const timerLabel = wrapper.find(TimerLabel);
+    test('TimerLabel text is 00:00', () => {
+      expect(timerLabel.text()).toEqual('00:00');
+    });
 
-    expect(timerLabel).toHaveLength(1);
-    expect(timerLabel.text()).toEqual('00:00');
+    test('TimerLabel text is nowDate', () => {
+      expect(timerLabel.props()).toHaveProperty('time', nowDate);
+    });
 
-    Date.now = jest.fn(() => new Date(2020, 4, 8, 20, 11, 30));
+    test('advance timers by 1000ms with nowDate changing cause update of TimerLabel text', () => {
+      nowDate = new Date(2020, 4, 8, 21, 12, 30);
+      jest.advanceTimersByTime(1000);
+      expect(timerLabel.text()).toEqual('01:02');
+    });
 
-    const spy = jest.spyOn(wrapper.instance(), 'timerEvent');
-
-    jest.advanceTimersByTime(1000);
-
-    expect(timerLabel.text()).toEqual('00:01');
-
-    Date.now = jest.fn(() => new Date(2020, 4, 8, 21, 12, 30));
-
-    jest.clearAllMocks();
-    jest.advanceTimersByTime(5000);
-
-    expect(spy).toHaveBeenCalledTimes(5);
-    expect(timerLabel.text()).toEqual('01:02');
-
-    jest.useRealTimers();
+    test('advance timers by 5000ms cause calling timerEvent 5 times', () => {
+      jest.advanceTimersByTime(5000);
+      expect(timerEventMock).toHaveBeenCalledTimes(5);
+    });
   });
 });

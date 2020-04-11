@@ -45,7 +45,7 @@ const TimerLabel = ({ time, now, state }) => (
 TimerLabel.propTypes = {
   time: PropTypes.instanceOf(Date),
   now: PropTypes.instanceOf(Date),
-  state: PropTypes.string,
+  state: PropTypes.oneOf(['fail', 'success']),
 };
 
 TimerLabel.defaultProps = {
@@ -53,6 +53,5 @@ TimerLabel.defaultProps = {
   now: new Date(Date.now()),
   state: 'fail',
 };
-
 
 export default TimerLabel;
