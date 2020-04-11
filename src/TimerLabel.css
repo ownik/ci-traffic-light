@@ -1,0 +1,18 @@
+div.timer-label {
+  display: block;
+  color: white;
+  font-size: 4em;
+  position: absolute;
+}
+
+div.timer-label.fail {
+  top: 0;
+  left: 0;
+  margin-left: 0.3em;
+}
+
+div.timer-label.success {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

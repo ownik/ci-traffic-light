@@ -45,9 +45,7 @@ describe('App', () => {
     expect(timerLabel).toHaveLength(1);
     expect(timerLabel.text()).toEqual('00:00');
 
-    Date.now = jest
-      .spyOn(Date, 'now')
-      .mockImplementation(() => new Date(2020, 4, 8, 20, 11, 30));
+    Date.now = jest.fn(() => new Date(2020, 4, 8, 20, 11, 30));
 
     const spy = jest.spyOn(wrapper.instance(), 'timerEvent');
 
@@ -55,9 +53,13 @@ describe('App', () => {
 
     expect(timerLabel.text()).toEqual('00:01');
 
+    Date.now = jest.fn(() => new Date(2020, 4, 8, 21, 12, 30));
+
+    jest.clearAllMocks();
     jest.advanceTimersByTime(5000);
 
-    expect(spy).toHaveBeenCalledTimes(6);
+    expect(spy).toHaveBeenCalledTimes(5);
+    expect(timerLabel.text()).toEqual('01:02');
 
     jest.useRealTimers();
   });

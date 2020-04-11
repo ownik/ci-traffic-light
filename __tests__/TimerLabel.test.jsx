@@ -14,6 +14,18 @@ describe('TimerLabel', () => {
     expect(wrapper.type()).toBe('div');
   });
 
+  test('default has class timer-label and fail', () => {
+    const wrapper = shallow(<TimerLabel />);
+    expect(wrapper.hasClass('timer-label')).toEqual(true);
+    expect(wrapper.hasClass('fail')).toEqual(true);
+  });
+
+  test('setted state to success', () => {
+    const wrapper = shallow(<TimerLabel state="success" />);
+    expect(wrapper.hasClass('timer-label')).toEqual(true);
+    expect(wrapper.hasClass('success')).toEqual(true);
+  });
+
   test('now date display 00:00', () => {
     const wrapper = shallow(<TimerLabel now={time} time={time} />);
     expect(wrapper.text()).toEqual('00:00');

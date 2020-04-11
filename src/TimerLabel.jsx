@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import './TimerLabel.css';
 
 const msInSec = 1000;
 const secsInMinute = 60;
@@ -37,11 +38,21 @@ function toDDHHMM(time, now) {
   return `${days}${hours}:${minutes}`;
 }
 
-const TimerLabel = ({ time, now }) => <div>{toDDHHMM(time, now)}</div>;
+const TimerLabel = ({ time, now, state }) => (
+  <div className={`timer-label ${state}`}>{toDDHHMM(time, now)}</div>
+);
 
 TimerLabel.propTypes = {
   time: PropTypes.instanceOf(Date),
   now: PropTypes.instanceOf(Date),
+  state: PropTypes.string,
 };
+
+TimerLabel.defaultProps = {
+  time: new Date(Date.now()),
+  now: new Date(Date.now()),
+  state: 'fail',
+};
+
 
 export default TimerLabel;
