@@ -33,7 +33,9 @@ describe('App', () => {
 
     beforeAll(() => {
       jest.useFakeTimers();
-      mockDateNow = jest.spyOn(Date, 'now').mockImplementation(() => nowDate);
+      mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() => nowDate.getTime());
       wrapper = mount(<App />);
       timerLabel = wrapper.find(TimerLabel);
     });
