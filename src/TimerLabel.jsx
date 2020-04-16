@@ -38,20 +38,20 @@ function toDDHHMM(time, now) {
   return `${days}${hours}:${minutes}`;
 }
 
-const TimerLabel = ({ time, now, state }) => (
-  <div className={`timer-label ${state}`}>{toDDHHMM(time, now)}</div>
+const TimerLabel = ({ time, now, status }) => (
+  <div className={`timer-label ${status}`}>{toDDHHMM(time, now)}</div>
 );
 
 TimerLabel.propTypes = {
   time: PropTypes.instanceOf(Date),
   now: PropTypes.instanceOf(Date),
-  state: PropTypes.oneOf(['fail', 'success']),
+  status: PropTypes.oneOf(['fail', 'success']),
 };
 
 TimerLabel.defaultProps = {
   time: new Date(Date.now()),
   now: new Date(Date.now()),
-  state: 'fail',
+  status: 'fail',
 };
 
 export default TimerLabel;

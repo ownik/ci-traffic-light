@@ -29,14 +29,14 @@ describe('TimerLabel', () => {
     expect(wrapper.hasClass('fail')).toEqual(true);
   });
 
-  test('set state to success', () => {
-    const wrapper = shallow(<TimerLabel state="success" />);
+  test('set status to success', () => {
+    const wrapper = shallow(<TimerLabel status="success" />);
     expect(wrapper.hasClass('timer-label')).toEqual(true);
     expect(wrapper.hasClass('success')).toEqual(true);
   });
 
-  test('set unknown state throw error', () => {
-    shallow(<TimerLabel state="unknow-state" />);
+  test('set unknown status throw error', () => {
+    shallow(<TimerLabel status="unknow-status" />);
     expect(consoleErrorMock).toHaveBeenCalledTimes(1);
   });
 

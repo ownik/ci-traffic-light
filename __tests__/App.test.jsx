@@ -15,17 +15,9 @@ describe('App', () => {
       const wrapper = shallow(<App />);
       expect(wrapper.type()).toBe(LightIndicatorScreen);
     });
-
-    test('first element default color is red', () => {
-      const wrapper = shallow(<App />);
-      expect(wrapper.get(0).props.style).toHaveProperty(
-        'backgroundColor',
-        'red'
-      );
-    });
   });
 
-  describe('test TimerLabel integration', () => {
+  describe('TimerLabel integration', () => {
     let wrapper;
     let timerLabel;
     let timerEventMock;

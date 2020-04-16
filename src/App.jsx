@@ -26,7 +26,7 @@ class App extends Component {
   render() {
     const { now, time } = this.state;
     return (
-      <LightIndicatorScreen style={{ backgroundColor: 'red' }} state="fail">
+      <LightIndicatorScreen status="fail">
         <TimerLabel now={now} time={time} />
       </LightIndicatorScreen>
     );

@@ -16,21 +16,21 @@ describe('LightIndicatorScreen', () => {
 
   const colors = { fail: 'red', success: 'green' };
 
-  test('check colors props - default state', () => {
+  test('check colors props - default status', () => {
     const wrapper = shallow(<LightIndicatorScreen color={colors} />);
     expect(wrapper.get(0).props.style).toHaveProperty('backgroundColor', 'red');
   });
 
-  test('check colors props - fail state', () => {
+  test('check colors props - fail status', () => {
     const wrapper = shallow(
-      <LightIndicatorScreen color={colors} state="fail" />
+      <LightIndicatorScreen color={colors} status="fail" />
     );
     expect(wrapper.get(0).props.style).toHaveProperty('backgroundColor', 'red');
   });
 
-  test('check colors props - success state', () => {
+  test('check colors props - success status', () => {
     const wrapper = shallow(
-      <LightIndicatorScreen color={colors} state="success" />
+      <LightIndicatorScreen color={colors} status="success" />
     );
     expect(wrapper.get(0).props.style).toHaveProperty(
       'backgroundColor',
@@ -48,40 +48,40 @@ describe('LightIndicatorScreen', () => {
     expect(wrapper.find(MockContainer)).toHaveLength(1);
   });
 
-  test('className for fail state', () => {
-    const wrapper = shallow(<LightIndicatorScreen state="fail" />);
+  test('className for status fail', () => {
+    const wrapper = shallow(<LightIndicatorScreen status="fail" />);
     expect(wrapper.props()).toHaveProperty(
       'className',
       'indicator-screen fail'
     );
   });
 
-  test('className for success state', () => {
-    const wrapper = shallow(<LightIndicatorScreen state="success" />);
+  test('className for status success', () => {
+    const wrapper = shallow(<LightIndicatorScreen status="success" />);
     expect(wrapper.props()).toHaveProperty(
       'className',
       'indicator-screen success'
     );
   });
 
-  test('FailedItemList visible on fail state', () => {
-    const wrapper = shallow(<LightIndicatorScreen state="fail" />);
+  test('FailedItemList visible on status fail', () => {
+    const wrapper = shallow(<LightIndicatorScreen status="fail" />);
     expect(wrapper.find(FailedItemList)).toHaveLength(1);
   });
 
-  test('FailedItemList invisible on success state', () => {
-    const wrapper = shallow(<LightIndicatorScreen state="success" />);
+  test('FailedItemList invisible on status success', () => {
+    const wrapper = shallow(<LightIndicatorScreen status="success" />);
     expect(wrapper.find(FailedItemList)).toHaveLength(0);
   });
 
-  test('FailedItemList visible on fail state with setted items', () => {
+  test('FailedItemList visible on status fail with setted items', () => {
     const items = [
       { displayName: 'item1' },
       { displayName: 'item2' },
       { displayName: 'item3' },
     ];
     const wrapper = shallow(
-      <LightIndicatorScreen state="fail" items={items} />
+      <LightIndicatorScreen status="fail" items={items} />
     );
     const listWrapper = wrapper.find(FailedItemList).dive();
     expect(listWrapper.find(FailedItem)).toHaveLength(items.length);
