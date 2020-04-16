@@ -2,12 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FailedItem from './FailedItem';
 
+import './FailedItemList.css';
+
 const FailedItemList = ({ items }) => (
-  <ul className="failed-item-list">
-    {items.map((item) => (
-      <FailedItem {...item} key={item.displayName} />
-    ))}
-  </ul>
+  <div className="failed-item-list">
+    <ul>
+      {items.map((item) => (
+        <FailedItem {...item} key={item.displayName} />
+      ))}
+    </ul>
+  </div>
 );
 
 FailedItemList.propTypes = {

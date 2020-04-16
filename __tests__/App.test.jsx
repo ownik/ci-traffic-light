@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import App from '../src/App';
 
+import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
 
 describe('App', () => {
@@ -10,9 +11,9 @@ describe('App', () => {
       shallow(<App />);
     });
 
-    test('first element must be div', () => {
+    test('expected first element is LightIndicatorScreen', () => {
       const wrapper = shallow(<App />);
-      expect(wrapper.type()).toBe('div');
+      expect(wrapper.type()).toBe(LightIndicatorScreen);
     });
 
     test('first element default color is red', () => {

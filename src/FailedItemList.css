@@ -1,0 +1,13 @@
+div.failed-item-list {
+  display: block;
+  color: white;
+  font-size: 4em;
+  position: absolute;  
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+div.failed-item-list > ul {
+  list-style: none;
+}

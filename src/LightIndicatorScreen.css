@@ -1,6 +1,4 @@
-html,
-body,
-#root {
+div.indicator-screen {
   height: 100vh;
   margin: 0;
 }

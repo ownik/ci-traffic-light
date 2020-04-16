@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import LightIndicatorScreen from './LightIndicatorScreen';
 
 import TimerLabel from './TimerLabel';
 
@@ -25,9 +26,9 @@ class App extends Component {
   render() {
     const { now, time } = this.state;
     return (
-      <div className="App" style={{ backgroundColor: 'red' }}>
+      <LightIndicatorScreen style={{ backgroundColor: 'red' }} state="fail">
         <TimerLabel now={now} time={time} />
-      </div>
+      </LightIndicatorScreen>
     );
   }
 }
