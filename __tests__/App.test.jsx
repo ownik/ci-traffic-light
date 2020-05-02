@@ -1,19 +1,68 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
+import mockAxios from 'axios';
 import App from '../src/App';
 
 import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
 
+jest.mock('axios', () => ({
+  get: jest.fn().mockImplementation(() => Promise.resolve({ data: '' })),
+}));
+
 describe('App', () => {
   describe('Basic App tests', () => {
-    test('renders without crashing', () => {
-      shallow(<App />);
-    });
-
     test('expected first element is LightIndicatorScreen', () => {
       const wrapper = shallow(<App />);
       expect(wrapper.type()).toBe(LightIndicatorScreen);
+    });
+  });
+
+  describe('Settings read', () => {
+    let fetchSettingsMock;
+
+    beforeEach(() => {
+      fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
+    });
+
+    afterEach(() => {
+      fetchSettingsMock.mockRestore();
+    });
+
+    test('should call fetchSettings during componentDidMount', () => {
+      shallow(<App />);
+      expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
+    });
+
+    test('read settings in componentDidMount', (done) => {
+      const settings = { test: true, string: 'some string' };
+
+      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+        data: settings,
+      });
+      const wrapper = shallow(<App />);
+
+      setImmediate(() => {
+        expect(wrapper.instance().settings).toEqual(settings);
+        done();
+      });
+    });
+
+    test('works with async/await and resolves', async () => {
+      const settings = { test: true, string: 'some string' };
+
+      mockAxios.get.mockClear();
+      mockAxios.get.mockImplementationOnce(() => Promise.resolve(settings));
+
+      const wrapper = shallow(<App />, { disableLifecycleMethods: true });
+
+      await expect(wrapper.instance().fetchSettings()).resolves.toEqual(
+        settings
+      );
+
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/settings.json');
     });
   });
 
@@ -37,6 +86,7 @@ describe('App', () => {
       timerEventMock.mockRestore();
       mockDateNow.mockRestore();
       jest.useRealTimers();
+      wrapper.unmount();
     });
 
     beforeEach(() => {

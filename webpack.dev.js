@@ -8,5 +8,6 @@ module.exports = merge(common, {
     contentBase: './dist',
     open: true,
     writeToDisk: true,
+    port: 8080,
   },
 });

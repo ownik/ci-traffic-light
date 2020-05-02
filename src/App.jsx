@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
-import LightIndicatorScreen from './LightIndicatorScreen';
 
+import LightIndicatorScreen from './LightIndicatorScreen';
 import TimerLabel from './TimerLabel';
+
+import axios from 'axios';
 
 class App extends Component {
   constructor(props) {
@@ -12,7 +14,14 @@ class App extends Component {
   }
 
   componentDidMount() {
+    this.fetchSettings().then((json) => {
+      this.settings = json.data;
+    });
     this.interval = setInterval(() => this.timerEvent(), 1000);
+  }
+
+  fetchSettings() {
+    return axios.get('/settings.json');
   }
 
   timerEvent() {
