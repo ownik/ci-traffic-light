@@ -14,18 +14,38 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.fetchSettings().then((json) => {
-      this.settings = json.data;
-    });
-    this.interval = setInterval(() => this.timerEvent(), 1000);
+    this.updateStateTime = 0;
+    this.fetchSettings()
+      .then((responce) => {
+        this.settings = responce.data;
+        return this.connect();
+      })
+      .then((response) => {
+        this.updateState();
+        this.interval = setInterval(() => this.timerEvent(), 1000);
+        console.log(JSON.stringify(response));
+      });
   }
 
   fetchSettings() {
     return axios.get('/settings.json');
   }
 
+  connect() {
+    return axios.get('');
+  }
+
+  updateState() {
+    axios.get('123123');
+  }
+
   timerEvent() {
     this.setState({ now: new Date(Date.now()) });
+    this.updateStateTime += 1000;
+    if (this.updateStateTime >= this.settings.updateStateInterval) {
+      this.updateState();
+      this.updateStateTime = 0;
+    }
   }
 
   componentWillUnmount() {

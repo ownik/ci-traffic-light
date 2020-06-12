@@ -7,7 +7,7 @@ import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
 
 jest.mock('axios', () => ({
-  get: jest.fn().mockImplementation(() => Promise.resolve({ data: '' })),
+  get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
 
 describe('App', () => {
@@ -20,18 +20,81 @@ describe('App', () => {
 
   describe('Settings read', () => {
     let fetchSettingsMock;
+    let connectMock;
+    let updateStateMock;
+    let app;
 
     beforeEach(() => {
+      jest.useFakeTimers();
+      mockAxios.get.mockClear();
       fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
+      connectMock = jest.spyOn(App.prototype, 'connect');
+      updateStateMock = jest.spyOn(App.prototype, 'updateState');
     });
 
     afterEach(() => {
+      if (app) app.unmount();
       fetchSettingsMock.mockRestore();
+      connectMock.mockRestore();
+      updateStateMock.mockRestore();
+      jest.useRealTimers();
     });
 
-    test('should call fetchSettings during componentDidMount', () => {
-      shallow(<App />);
-      expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
+    test('should call fetchSettings, connect, setInterval and updateState during componentDidMount \
+    and call clearInterval in componentWillUnmount', (done) => {
+      app = shallow(<App />);
+      setImmediate(() => {
+        expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
+        expect(connectMock).toHaveBeenCalledTimes(1);
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(3);
+        expect(setInterval).toHaveBeenCalledTimes(1);
+        app.unmount();
+        expect(clearInterval).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    test('check updateState interval 5000ms', (done) => {
+      const settings = { updateStateInterval: 5000 };
+
+      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+        data: settings,
+      });
+
+      app = shallow(<App />);
+
+      setImmediate(() => {
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(1000);
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(5000);
+        expect(updateStateMock).toHaveBeenCalledTimes(2);
+        jest.advanceTimersByTime(50000);
+        expect(updateStateMock).toHaveBeenCalledTimes(12);
+        done();
+      });
+    });
+
+    test('check updateState interval 30000ms', (done) => {
+      const settings = { updateStateInterval: 30000 };
+
+      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+        data: settings,
+      });
+
+      app = shallow(<App />);
+
+      setImmediate(() => {
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(1000);
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(5000);
+        expect(updateStateMock).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(50000);
+        expect(updateStateMock).toHaveBeenCalledTimes(2);
+        done();
+      });
     });
 
     test('read settings in componentDidMount', (done) => {
@@ -48,10 +111,9 @@ describe('App', () => {
       });
     });
 
-    test('works with async/await and resolves', async () => {
+    test('manualy call fetch settings with mocked axios', async () => {
       const settings = { test: true, string: 'some string' };
 
-      mockAxios.get.mockClear();
       mockAxios.get.mockImplementationOnce(() => Promise.resolve(settings));
 
       const wrapper = shallow(<App />, { disableLifecycleMethods: true });
