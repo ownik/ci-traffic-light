@@ -28,4 +28,19 @@ export class Teamcity {
       ? !goodStatuses.includes(response.data.build[0].status.toUpperCase())
       : false;
   }
+
+  async isRunningBuildSuccess(buildTypeId) {
+    const response = await axios.get(
+      `${this.serverUrl}/app/rest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,count:1,buildType:(${buildTypeId})`,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+        auth: this.auth,
+      }
+    );
+    return response.data.build.length > 0
+      ? response.data.build[0].status.toUpperCase() == STATUSES.Success
+      : null;
+  }
 }
