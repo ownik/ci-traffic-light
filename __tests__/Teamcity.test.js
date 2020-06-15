@@ -27,7 +27,11 @@ const makeJson = (buildTypeId, statuses) => {
 describe('Teamcity', () => {
   let teamcity;
   beforeEach(() => {
-    teamcity = new Teamcity('some url', 'some-branch');
+    teamcity = new Teamcity(
+      'some url',
+      { username: 'root', password: '123456' },
+      'some-branch'
+    );
   });
 
   afterEach(() => {
@@ -42,11 +46,12 @@ describe('Teamcity', () => {
     );
     await teamcity.isFinishedBuildFail('SomeBuildTypeId');
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(
-      mockAxios.get
-    ).toHaveBeenCalledWith(
+    expect(mockAxios.get).toHaveBeenCalledWith(
       'some url/app/rest/builds?locator=branch:some-branch,failedToStart:any,running:false,canceled:false,count:1,buildType:(SomeBuildTypeId)',
-      { headers: { Accept: 'application/json' } }
+      {
+        headers: { Accept: 'application/json' },
+        auth: { username: 'root', password: '123456' },
+      }
     );
   });
 
@@ -56,7 +61,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', []),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when SUCCESS state upper case', async () => {
@@ -65,7 +72,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['SUCCESS']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when success state lower case', async () => {
@@ -74,7 +83,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['success']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when suCCeSS state different case', async () => {
@@ -83,7 +94,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['suCCeSS']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when UNKNOWN state upper case', async () => {
@@ -92,7 +105,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['UNKNOWN']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when unknown state lower case', async () => {
@@ -101,7 +116,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['unknown']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail false when unKnOWN state different case', async () => {
@@ -110,7 +127,9 @@ describe('Teamcity', () => {
         data: makeJson('SomeBuildTypeId', ['unKnOWN']),
       })
     );
-    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(false);
+    expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+      false
+    );
   });
 
   test('isFinishedBuildFail true when FAILURE state upper case', async () => {

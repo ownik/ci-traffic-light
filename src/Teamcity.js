@@ -7,8 +7,9 @@ export const STATUSES = {
 };
 
 export class Teamcity {
-  constructor(serverUrl, branch) {
+  constructor(serverUrl, auth, branch) {
     this.serverUrl = serverUrl;
+    this.auth = auth;
     this.branch = branch;
   }
 
@@ -20,6 +21,7 @@ export class Teamcity {
         headers: {
           Accept: 'application/json',
         },
+        auth: this.auth,
       }
     );
     return response.data.build.length > 0
