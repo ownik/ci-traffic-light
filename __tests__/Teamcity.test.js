@@ -11,14 +11,11 @@ jest.mock('axios', () => ({
 }));
 
 describe('Teamcity', () => {
-  let teamcity;
-  beforeEach(() => {
-    teamcity = new Teamcity(
-      'some url',
-      { username: 'root', password: '123456' },
-      'some-branch'
-    );
-  });
+  const teamcity = new Teamcity(
+    'some url',
+    { username: 'root', password: '123456' },
+    'some-branch'
+  );
 
   afterEach(() => {
     mockAxios.get.mockClear();
@@ -42,100 +39,30 @@ describe('Teamcity', () => {
       );
     });
 
-    test('false when no builds', async () => {
+    test.each`
+      state                     | expected
+      ${[]}                     | ${false}
+      ${['SUCCESS']}            | ${false}
+      ${['success']}            | ${false}
+      ${['suCCeSS']}            | ${false}
+      ${['UNKNOWN']}            | ${false}
+      ${['unknown']}            | ${false}
+      ${['unKnOWN']}            | ${false}
+      ${['FAILURE']}            | ${true}
+      ${['failure']}            | ${true}
+      ${['faIlUrE']}            | ${true}
+      ${['other']}              | ${true}
+      ${['SUCCESS', 'FAILURE']} | ${false}
+      ${['FAILURE', 'SUCCESS']} | ${true}
+    `('$expected when states is $state', async ({ state, expected }) => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', []),
+          data: makeBuildsJson('SomeBuildTypeId', state),
         })
       );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when SUCCESS state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['SUCCESS']),
-        })
+      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toEqual(
+        expected
       );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when success state lower case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['success']),
-        })
-      );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when suCCeSS state different case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['suCCeSS']),
-        })
-      );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when UNKNOWN state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['UNKNOWN']),
-        })
-      );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when unknown state lower case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['unknown']),
-        })
-      );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('false when unKnOWN state different case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['unKnOWN']),
-        })
-      );
-      expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
-    });
-
-    test('true when FAILURE state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['FAILURE']),
-        })
-      );
-      expect(
-        await teamcity.isFinishedBuildFail('SomeBuildTypeId')
-      ).toBeTruthy();
-    });
-
-    test('true when failure state lower case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['failure']),
-        })
-      );
-      expect(
-        await teamcity.isFinishedBuildFail('SomeBuildTypeId')
-      ).toBeTruthy();
-    });
-
-    test('true when faIlUrE state different case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['faIlUrE']),
-        })
-      );
-      expect(
-        await teamcity.isFinishedBuildFail('SomeBuildTypeId')
-      ).toBeTruthy();
     });
   });
 
@@ -294,5 +221,54 @@ describe('Teamcity', () => {
           .addInvestigation('user2', ['Build 3'])
       );
     });
+  });
+
+  describe('checkState', () => {
+    let fetchAllInvestigationMock;
+    let isFinishedBuildFailMock;
+    let isRunningBuildSuccessMock;
+
+    beforeEach(() => {
+      fetchAllInvestigationMock = jest.spyOn(teamcity, 'fetchAllInvestigation');
+      isFinishedBuildFailMock = jest.spyOn(teamcity, 'isFinishedBuildFail');
+      isRunningBuildSuccessMock = jest.spyOn(teamcity, 'isRunningBuildSuccess');
+    });
+
+    afterEach(() => {
+      fetchAllInvestigationMock.mockRestore();
+      isFinishedBuildFailMock.mockRestore();
+      isRunningBuildSuccessMock.mockRestore();
+    });
+
+    test.each`
+      buildTypes
+      ${['Build 1']}
+      ${['Build 1', 'Build 2']}
+    `(
+      'check call and args for sub functions for $buildTypes.length build types',
+      async ({ buildTypes }) => {
+        fetchAllInvestigationMock.mockImplementationOnce(() =>
+          Promise.resolve(new Investigations())
+        );
+        isFinishedBuildFailMock.mockImplementationOnce(() =>
+          Promise.resolve(false)
+        );
+        isRunningBuildSuccessMock.mockImplementationOnce(() =>
+          Promise.resolve(null)
+        );
+
+        await teamcity.checkState(buildTypes);
+
+        expect(fetchAllInvestigationMock).toHaveBeenCalledTimes(1);
+        expect(isFinishedBuildFailMock).toHaveBeenCalledTimes(
+          buildTypes.length
+        );
+        expect(isRunningBuildSuccessMock).toHaveBeenCalledTimes(
+          buildTypes.length
+        );
+
+        expect(fetchAllInvestigationMock).toHaveBeenCalledWith();
+      }
+    );
   });
 });

@@ -72,4 +72,12 @@ export class Teamcity {
       ? response.data.build[0].status.toUpperCase() == STATUSES.Success
       : null;
   }
+
+  async checkState(buildTypes) {
+    await this.fetchAllInvestigation();
+    for (let buildType of buildTypes) {
+      this.isFinishedBuildFail(buildType);
+      this.isRunningBuildSuccess(buildType);
+    }
+  }
 }
