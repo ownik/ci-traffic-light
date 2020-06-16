@@ -59,7 +59,7 @@ export class Teamcity {
     const response = await this.httpGet(
       `${this.serverUrl}/app/rest/builds?locator=branch:${this.branch},failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`
     );
-    return response.data.build.length > 0
+    return response.data.build && response.data.build.length > 0
       ? !goodStatuses.includes(response.data.build[0].status.toUpperCase())
       : false;
   }
@@ -68,7 +68,7 @@ export class Teamcity {
     const response = await this.httpGet(
       `${this.serverUrl}/app/rest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,count:1,buildType:(${buildTypeId})`
     );
-    return response.data.build.length > 0
+    return response.data.build && response.data.build.length > 0
       ? response.data.build[0].status.toUpperCase() == STATUSES.Success
       : null;
   }

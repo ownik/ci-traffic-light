@@ -1,39 +1,53 @@
-export const makeBuildsJson = (buildTypeId, statuses) => {
-  let buildArr = statuses.map((status, index) => ({
-    id: index,
-    buildTypeId: buildTypeId,
-    number: `${index}`,
-    status: status,
-    state: 'finished',
-    href: `/app/rest/builds/id:${index}`,
-    webUrl: `http://localhost:8111/viewLog.html?buildId=${index}&buildTypeId=${buildTypeId}`,
-  }));
+export const makeBuildsJson = (buildTypeId, status) => {
+  if (status === null) {
+    return {
+      href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
+      nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
+    };
+  }
 
   return {
-    count: buildArr.length,
+    count: 1,
     href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
     nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
-    build: buildArr,
+    build: [
+      {
+        id: 1,
+        buildTypeId: buildTypeId,
+        number: '1',
+        status: status,
+        state: 'finished',
+        href: `/app/rest/builds/id:1`,
+        webUrl: `http://localhost:8111/viewLog.html?buildId=1&buildTypeId=${buildTypeId}`,
+      },
+    ],
   };
 };
 
-export const makeRunningBuildsJson = (buildTypeId, statuses) => {
-  let buildArr = statuses.map((status, index) => ({
-    id: index,
-    buildTypeId: buildTypeId,
-    number: `${index}`,
-    status: status,
-    state: 'running',
-    percentageComplete: 34,
-    href: `/app/rest/builds/id:${index}`,
-    webUrl: `http://localhost:8111/viewLog.html?buildId=${index}&buildTypeId=${buildTypeId}`,
-  }));
+export const makeRunningBuildsJson = (buildTypeId, status) => {
+  if (status === null) {
+    return {
+      href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
+      nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
+    };
+  }
 
   return {
-    count: buildArr.length,
+    count: 1,
     href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
     nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
-    build: buildArr,
+    build: [
+      {
+        id: 1,
+        buildTypeId: buildTypeId,
+        number: '1',
+        status: status,
+        state: 'running',
+        percentageComplete: 34,
+        href: `/app/rest/builds/id:1`,
+        webUrl: `http://localhost:8111/viewLog.html?buildId=1&buildTypeId=${buildTypeId}`,
+      },
+    ],
   };
 };
 

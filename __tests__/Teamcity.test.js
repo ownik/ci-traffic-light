@@ -25,7 +25,7 @@ describe('Teamcity', () => {
     test('test axios arguments', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeBuildsJson('SomeBuildTypeId', ['SUCCESS']),
+          data: makeBuildsJson('SomeBuildTypeId', 'SUCCESS'),
         })
       );
       await teamcity.isFinishedBuildFail('SomeBuildTypeId');
@@ -40,21 +40,19 @@ describe('Teamcity', () => {
     });
 
     test.each`
-      state                     | expected
-      ${[]}                     | ${false}
-      ${['SUCCESS']}            | ${false}
-      ${['success']}            | ${false}
-      ${['suCCeSS']}            | ${false}
-      ${['UNKNOWN']}            | ${false}
-      ${['unknown']}            | ${false}
-      ${['unKnOWN']}            | ${false}
-      ${['FAILURE']}            | ${true}
-      ${['failure']}            | ${true}
-      ${['faIlUrE']}            | ${true}
-      ${['other']}              | ${true}
-      ${['SUCCESS', 'FAILURE']} | ${false}
-      ${['FAILURE', 'SUCCESS']} | ${true}
-    `('$expected when states is $state', async ({ state, expected }) => {
+      state        | expected
+      ${null}      | ${false}
+      ${'SUCCESS'} | ${false}
+      ${'success'} | ${false}
+      ${'suCCeSS'} | ${false}
+      ${'UNKNOWN'} | ${false}
+      ${'unknown'} | ${false}
+      ${'unKnOWN'} | ${false}
+      ${'FAILURE'} | ${true}
+      ${'failure'} | ${true}
+      ${'faIlUrE'} | ${true}
+      ${'other'}   | ${true}
+    `('$expected when state is $state', async ({ state, expected }) => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: makeBuildsJson('SomeBuildTypeId', state),
@@ -70,7 +68,7 @@ describe('Teamcity', () => {
     test('test axios arguments', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['SUCCESS']),
+          data: makeRunningBuildsJson('SomeBuildTypeId', 'SUCCESS'),
         })
       );
       await teamcity.isRunningBuildSuccess('SomeBuildTypeId');
@@ -84,70 +82,28 @@ describe('Teamcity', () => {
       );
     });
 
-    test('null when no running builds', async () => {
+    test.each`
+      state        | expected
+      ${null}      | ${null}
+      ${'SUCCESS'} | ${true}
+      ${'success'} | ${true}
+      ${'suCCeSS'} | ${true}
+      ${'UNKNOWN'} | ${false}
+      ${'unknown'} | ${false}
+      ${'unKnOWN'} | ${false}
+      ${'FAILURE'} | ${false}
+      ${'failure'} | ${false}
+      ${'faIlUrE'} | ${false}
+      ${'other'}   | ${false}
+    `('$expected when state is $state', async ({ state, expected }) => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', []),
+          data: makeRunningBuildsJson('SomeBuildTypeId', state),
         })
       );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeNull();
-    });
-
-    test('false when SUCCESS state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['SUCCESS']),
-        })
+      expect(await teamcity.isRunningBuildSuccess('SomeBuildTypeId')).toEqual(
+        expected
       );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeTruthy();
-    });
-
-    test('false when success state lower case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['success']),
-        })
-      );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeTruthy();
-    });
-
-    test('false when suCCeSS state different case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['suCCeSS']),
-        })
-      );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeTruthy();
-    });
-
-    test('false when FAILURE state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['FAILURE']),
-        })
-      );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeFalsy();
-    });
-
-    test('false when UNKNOWN state upper case', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeRunningBuildsJson('SomeBuildTypeId', ['UNKNOWN']),
-        })
-      );
-      expect(
-        await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
-      ).toBeFalsy();
     });
   });
 
