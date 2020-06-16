@@ -1,48 +1,14 @@
 import mockAxios from 'axios';
-import { Teamcity } from '../src/Teamcity';
+import { Teamcity, Investigations } from '../src/Teamcity';
+import {
+  makeBuildsJson,
+  makeRunningBuildsJson,
+  makeInvestigationJson,
+} from './teamcityTestUtils';
 
 jest.mock('axios', () => ({
   get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
-
-const makeJson = (buildTypeId, statuses) => {
-  let buildArr = statuses.map((status, index) => ({
-    id: index,
-    buildTypeId: buildTypeId,
-    number: `${index}`,
-    status: status,
-    state: 'finished',
-    href: `/app/rest/builds/id:${index}`,
-    webUrl: `http://localhost:8111/viewLog.html?buildId=${index}&buildTypeId=${buildTypeId}`,
-  }));
-
-  return {
-    count: buildArr.length,
-    href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
-    nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
-    build: buildArr,
-  };
-};
-
-const makeRunningBuildsJson = (buildTypeId, statuses) => {
-  let buildArr = statuses.map((status, index) => ({
-    id: index,
-    buildTypeId: buildTypeId,
-    number: `${index}`,
-    status: status,
-    state: 'running',
-    percentageComplete: 34,
-    href: `/app/rest/builds/id:${index}`,
-    webUrl: `http://localhost:8111/viewLog.html?buildId=${index}&buildTypeId=${buildTypeId}`,
-  }));
-
-  return {
-    count: buildArr.length,
-    href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
-    nextHref: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:${buildTypeId},start:1`,
-    build: buildArr,
-  };
-};
 
 describe('Teamcity', () => {
   let teamcity;
@@ -62,7 +28,7 @@ describe('Teamcity', () => {
     test('test axios arguments', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['SUCCESS']),
+          data: makeBuildsJson('SomeBuildTypeId', ['SUCCESS']),
         })
       );
       await teamcity.isFinishedBuildFail('SomeBuildTypeId');
@@ -79,7 +45,7 @@ describe('Teamcity', () => {
     test('false when no builds', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', []),
+          data: makeBuildsJson('SomeBuildTypeId', []),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -88,7 +54,7 @@ describe('Teamcity', () => {
     test('false when SUCCESS state upper case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['SUCCESS']),
+          data: makeBuildsJson('SomeBuildTypeId', ['SUCCESS']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -97,7 +63,7 @@ describe('Teamcity', () => {
     test('false when success state lower case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['success']),
+          data: makeBuildsJson('SomeBuildTypeId', ['success']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -106,7 +72,7 @@ describe('Teamcity', () => {
     test('false when suCCeSS state different case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['suCCeSS']),
+          data: makeBuildsJson('SomeBuildTypeId', ['suCCeSS']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -115,7 +81,7 @@ describe('Teamcity', () => {
     test('false when UNKNOWN state upper case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['UNKNOWN']),
+          data: makeBuildsJson('SomeBuildTypeId', ['UNKNOWN']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -124,7 +90,7 @@ describe('Teamcity', () => {
     test('false when unknown state lower case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['unknown']),
+          data: makeBuildsJson('SomeBuildTypeId', ['unknown']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -133,7 +99,7 @@ describe('Teamcity', () => {
     test('false when unKnOWN state different case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['unKnOWN']),
+          data: makeBuildsJson('SomeBuildTypeId', ['unKnOWN']),
         })
       );
       expect(await teamcity.isFinishedBuildFail('SomeBuildTypeId')).toBeFalsy();
@@ -142,7 +108,7 @@ describe('Teamcity', () => {
     test('true when FAILURE state upper case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['FAILURE']),
+          data: makeBuildsJson('SomeBuildTypeId', ['FAILURE']),
         })
       );
       expect(
@@ -153,7 +119,7 @@ describe('Teamcity', () => {
     test('true when failure state lower case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['failure']),
+          data: makeBuildsJson('SomeBuildTypeId', ['failure']),
         })
       );
       expect(
@@ -164,7 +130,7 @@ describe('Teamcity', () => {
     test('true when faIlUrE state different case', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: makeJson('SomeBuildTypeId', ['faIlUrE']),
+          data: makeBuildsJson('SomeBuildTypeId', ['faIlUrE']),
         })
       );
       expect(
@@ -255,6 +221,78 @@ describe('Teamcity', () => {
       expect(
         await teamcity.isRunningBuildSuccess('SomeBuildTypeId')
       ).toBeFalsy();
+    });
+  });
+
+  describe('fetchAllInvestigation', () => {
+    test('test axios arguments', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeInvestigationJson([]),
+        })
+      );
+      await teamcity.fetchAllInvestigation();
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'some url/app/rest/investigations',
+        {
+          headers: { Accept: 'application/json' },
+          auth: { username: 'root', password: '123456' },
+        }
+      );
+    });
+
+    test('empty array when no investigation', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeInvestigationJson([]),
+        })
+      );
+      expect(await teamcity.fetchAllInvestigation()).toEqual(
+        new Investigations()
+      );
+    });
+
+    test('one investigation', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeInvestigationJson([
+            { username: 'user1', buildTypes: ['Build 1'] },
+          ]),
+        })
+      );
+      expect(await teamcity.fetchAllInvestigation()).toEqual(
+        new Investigations().addInvestigation('user1', ['Build 1'])
+      );
+    });
+
+    test('two investigation one user', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeInvestigationJson([
+            { username: 'user1', buildTypes: ['Build 1', 'Build 2'] },
+          ]),
+        })
+      );
+      expect(await teamcity.fetchAllInvestigation()).toEqual(
+        new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])
+      );
+    });
+
+    test('three investigation two user', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeInvestigationJson([
+            { username: 'user1', buildTypes: ['Build 1', 'Build 2'] },
+            { username: 'user2', buildTypes: ['Build 3'] },
+          ]),
+        })
+      );
+      expect(await teamcity.fetchAllInvestigation()).toEqual(
+        new Investigations()
+          .addInvestigation('user1', ['Build 1', 'Build 2'])
+          .addInvestigation('user2', ['Build 3'])
+      );
     });
   });
 });

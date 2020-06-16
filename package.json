@@ -53,6 +53,7 @@
     ],
     "modulePathIgnorePatterns": [
       "./__tests__/setupTests.js",
+      "./__tests__/teamcityTestUtils.js",
       "node_modules"
     ],
     "moduleNameMapper": {
