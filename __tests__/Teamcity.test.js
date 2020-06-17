@@ -216,6 +216,8 @@ describe('Teamcity', () => {
         await teamcity.checkState(buildTypes);
 
         expect(fetchAllInvestigationMock).toHaveBeenCalledTimes(1);
+        expect(fetchAllInvestigationMock).toHaveBeenCalledWith();
+
         expect(isFinishedBuildFailMock).toHaveBeenCalledTimes(
           buildTypes.length
         );
@@ -223,7 +225,16 @@ describe('Teamcity', () => {
           buildTypes.length
         );
 
-        expect(fetchAllInvestigationMock).toHaveBeenCalledWith();
+        for (const [i, buildType] of buildTypes.entries()) {
+          expect(isFinishedBuildFailMock).toHaveBeenNthCalledWith(
+            i + 1,
+            buildType
+          );
+          expect(isRunningBuildSuccessMock).toHaveBeenNthCalledWith(
+            i + 1,
+            buildType
+          );
+        }
       }
     );
   });

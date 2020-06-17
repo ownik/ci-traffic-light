@@ -75,7 +75,7 @@ export class Teamcity {
 
   async checkState(buildTypes) {
     await this.fetchAllInvestigation();
-    for (let buildType of buildTypes) {
+    for (const buildType of buildTypes) {
       this.isFinishedBuildFail(buildType);
       this.isRunningBuildSuccess(buildType);
     }
