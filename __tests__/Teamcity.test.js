@@ -125,58 +125,44 @@ describe('Teamcity', () => {
       );
     });
 
-    test('empty array when no investigation', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeInvestigationJson([]),
-        })
-      );
-      expect(await teamcity.fetchAllInvestigation()).toEqual(
-        new Investigations()
-      );
-    });
+    const investigationTest = (text, json, expected) =>
+      test(text, async () => {
+        mockAxios.get.mockImplementationOnce(() =>
+          Promise.resolve({
+            data: makeInvestigationJson(json),
+          })
+        );
+        expect(await teamcity.fetchAllInvestigation()).toEqual(expected);
+      });
 
-    test('one investigation', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeInvestigationJson([
-            { username: 'user1', buildTypes: ['Build 1'] },
-          ]),
-        })
-      );
-      expect(await teamcity.fetchAllInvestigation()).toEqual(
-        new Investigations().addInvestigation('user1', ['Build 1'])
-      );
-    });
+    investigationTest(
+      'empty array when no investigation',
+      [],
+      new Investigations()
+    );
 
-    test('two investigation one user', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeInvestigationJson([
-            { username: 'user1', buildTypes: ['Build 1', 'Build 2'] },
-          ]),
-        })
-      );
-      expect(await teamcity.fetchAllInvestigation()).toEqual(
-        new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])
-      );
-    });
+    investigationTest(
+      'one investigation',
+      [{ username: 'user1', buildTypes: ['Build 1'] }],
+      new Investigations().addInvestigation('user1', ['Build 1'])
+    );
 
-    test('three investigation two user', async () => {
-      mockAxios.get.mockImplementationOnce(() =>
-        Promise.resolve({
-          data: makeInvestigationJson([
-            { username: 'user1', buildTypes: ['Build 1', 'Build 2'] },
-            { username: 'user2', buildTypes: ['Build 3'] },
-          ]),
-        })
-      );
-      expect(await teamcity.fetchAllInvestigation()).toEqual(
-        new Investigations()
-          .addInvestigation('user1', ['Build 1', 'Build 2'])
-          .addInvestigation('user2', ['Build 3'])
-      );
-    });
+    investigationTest(
+      'two investigation one user',
+      [{ username: 'user1', buildTypes: ['Build 1', 'Build 2'] }],
+      new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])
+    );
+
+    investigationTest(
+      'three investigation two user',
+      [
+        { username: 'user1', buildTypes: ['Build 1', 'Build 2'] },
+        { username: 'user2', buildTypes: ['Build 3'] },
+      ],
+      new Investigations()
+        .addInvestigation('user1', ['Build 1', 'Build 2'])
+        .addInvestigation('user2', ['Build 3'])
+    );
   });
 
   describe('checkState', () => {
@@ -195,6 +181,56 @@ describe('Teamcity', () => {
       isFinishedBuildFailMock.mockRestore();
       isRunningBuildSuccessMock.mockRestore();
     });
+
+    const twoFailedBuildsExpected = [
+      {
+        id: 'Build 1',
+        displayName: 'Build 1',
+        investigators: [],
+        isRunning: false,
+      },
+      {
+        id: 'Build 2',
+        displayName: 'Build 2',
+        investigators: [],
+        isRunning: false,
+      },
+    ];
+
+    test.each`
+      text                                    | buildTypes                | investigations | failedBuilds              | runningSuccessBuilds    | expected
+      ${'one build - no failed'}              | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{}}                   | ${[]}
+      ${'one build - failed'}                 | ${['Build 1']}            | ${{}}          | ${['Build 1']}            | ${{}}                   | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: false }]}
+      ${'one build - running failed'}         | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{ 'Build 1': false }} | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
+      ${'one build - running success'}        | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{ 'Build 1': true }}  | ${[]}
+      ${'one build - failed running success'} | ${['Build 1']}            | ${{}}          | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
+      ${'two build - failed'}                 | ${['Build 1', 'Build 2']} | ${{}}          | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsExpected}
+    `(
+      '$text',
+      async ({
+        buildTypes,
+        investigations,
+        failedBuilds,
+        runningSuccessBuilds,
+        expected,
+      }) => {
+        fetchAllInvestigationMock.mockImplementation(() =>
+          Promise.resolve(investigations)
+        );
+        isFinishedBuildFailMock.mockImplementation((buildTypeId) =>
+          Promise.resolve(failedBuilds.includes(buildTypeId))
+        );
+        isRunningBuildSuccessMock.mockImplementation((buildTypeId) =>
+          Promise.resolve(
+            buildTypeId in runningSuccessBuilds
+              ? runningSuccessBuilds[buildTypeId]
+              : null
+          )
+        );
+
+        expect(await teamcity.checkState(buildTypes)).toEqual(expected);
+      }
+    );
 
     test.each`
       buildTypes
