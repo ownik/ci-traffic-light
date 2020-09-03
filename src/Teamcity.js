@@ -12,12 +12,21 @@ export class Investigations {
   }
 
   addInvestigation(userName, buildTypes) {
-    if (!(userName in this.table)) {
-      this.table[userName] = buildTypes;
-    } else {
-      this.table[userName].concat(buildTypes);
+    for (const buildType of buildTypes) {
+      /*if (buildType in this.table) {
+        this.table[buildType].concat([userName]);
+      } else {*/
+      this.table[buildType] = [userName];
+      //}
     }
     return this;
+  }
+
+  fetchInvestigationUserForBuildType(buildType) {
+    if (buildType in this.table) {
+      return this.table[buildType];
+    }
+    return [];
   }
 }
 
@@ -75,7 +84,7 @@ export class Teamcity {
 
   async checkState(buildTypes) {
     let result = [];
-    await this.fetchAllInvestigation();
+    const investigations = await this.fetchAllInvestigation();
     for (const buildType of buildTypes) {
       const finishedFailed = await this.isFinishedBuildFail(buildType);
       const runningSuccess = await this.isRunningBuildSuccess(buildType);
@@ -84,7 +93,9 @@ export class Teamcity {
         result.push({
           id: buildType,
           displayName: buildType,
-          investigators: [],
+          investigators: investigations.fetchInvestigationUserForBuildType(
+            buildType
+          ),
           isRunning: runningSuccess != null,
         });
       }

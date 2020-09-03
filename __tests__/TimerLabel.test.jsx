@@ -80,11 +80,11 @@ describe('TimerLabel', () => {
     expect(wrapper.text()).toEqual('33 days 01:01');
   });
 
-  test('2021-05-10 21:11:30 display 398 days 01:01', () => {
+  test('2021-05-11 9:21:30 display 398 days 13:11', () => {
     const wrapper = shallow(
-      <TimerLabel time={time} now={new Date(2021, 5, 10, 21, 11, 30)} />
+      <TimerLabel time={time} now={new Date(2021, 5, 11, 9, 21, 30)} />
     );
-    expect(wrapper.text()).toEqual('398 days 01:01');
+    expect(wrapper.text()).toEqual('398 days 13:11');
   });
 
   test('now past date 2019-05-10 21:11:30 throw error', () => {

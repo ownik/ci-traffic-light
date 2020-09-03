@@ -197,14 +197,30 @@ describe('Teamcity', () => {
       },
     ];
 
+    const twoFailedBuildsOneSameInvestigatorExpected = [
+      {
+        id: 'Build 1',
+        displayName: 'Build 1',
+        investigators: ['user1'],
+        isRunning: false,
+      },
+      {
+        id: 'Build 2',
+        displayName: 'Build 2',
+        investigators: ['user1'],
+        isRunning: false,
+      },
+    ];
+
     test.each`
-      text                                    | buildTypes                | investigations | failedBuilds              | runningSuccessBuilds    | expected
-      ${'one build - no failed'}              | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{}}                   | ${[]}
-      ${'one build - failed'}                 | ${['Build 1']}            | ${{}}          | ${['Build 1']}            | ${{}}                   | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: false }]}
-      ${'one build - running failed'}         | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{ 'Build 1': false }} | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
-      ${'one build - running success'}        | ${['Build 1']}            | ${{}}          | ${[]}                     | ${{ 'Build 1': true }}  | ${[]}
-      ${'one build - failed running success'} | ${['Build 1']}            | ${{}}          | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
-      ${'two build - failed'}                 | ${['Build 1', 'Build 2']} | ${{}}          | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsExpected}
+      text                                          | buildTypes                | investigations                                                            | failedBuilds              | runningSuccessBuilds    | expected
+      ${'one build - no failed'}                    | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{}}                   | ${[]}
+      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                   | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: false }]}
+      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': false }} | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
+      ${'one build - running success'}              | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': true }}  | ${[]}
+      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${[{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }]}
+      ${'two build - failed'}                       | ${['Build 1', 'Build 2']} | ${new Investigations()}                                                   | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsExpected}
+      ${'two build - failed one same investigator'} | ${['Build 1', 'Build 2']} | ${new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])} | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsOneSameInvestigatorExpected}
     `(
       '$text',
       async ({
