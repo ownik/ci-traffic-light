@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import mockAxios from 'axios';
 import App from '../src/App';
+import { Teamcity } from '../src/Teamcity';
 
 import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
@@ -10,7 +11,15 @@ jest.mock('axios', () => ({
   get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
 
+jest.mock('../src/Teamcity');
+Teamcity.prototype.checkState.mockResolvedValue([]);
+
 describe('App', () => {
+  beforeEach(() => {
+    Teamcity.mockClear();
+    Teamcity.prototype.checkState.mockClear();
+  });
+
   describe('Basic App tests', () => {
     test('expected first element is LightIndicatorScreen', () => {
       const wrapper = shallow(<App />);
@@ -20,7 +29,6 @@ describe('App', () => {
 
   describe('Settings read', () => {
     let fetchSettingsMock;
-    let connectMock;
     let updateStateMock;
     let app;
 
@@ -28,26 +36,49 @@ describe('App', () => {
       jest.useFakeTimers();
       mockAxios.get.mockClear();
       fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
-      connectMock = jest.spyOn(App.prototype, 'connect');
       updateStateMock = jest.spyOn(App.prototype, 'updateState');
     });
 
     afterEach(() => {
       if (app) app.unmount();
       fetchSettingsMock.mockRestore();
-      connectMock.mockRestore();
       updateStateMock.mockRestore();
       jest.useRealTimers();
     });
 
     test('should call fetchSettings, connect, setInterval and updateState during componentDidMount \
     and call clearInterval in componentWillUnmount', (done) => {
+      const mockSettings = {
+        serverUrl: 'http://localhost:8080',
+        auth: { user: 'root', password: '123456' },
+        branch: 'default',
+        buildTypes: ['Build Type 1', 'Build Type 2', 'Build Type 3'],
+      };
+
+      Teamcity.prototype.checkState.mockResolvedValueOnce(['Build Type 1']);
+      fetchSettingsMock = fetchSettingsMock.mockResolvedValueOnce({
+        data: mockSettings,
+      });
+
       app = shallow(<App />);
+
       setImmediate(() => {
         expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
-        expect(connectMock).toHaveBeenCalledTimes(1);
+        expect(app.instance().teamcity).toBeInstanceOf(Teamcity);
         expect(updateStateMock).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledTimes(3);
+        expect(Teamcity).toHaveBeenCalledTimes(1);
+        expect(Teamcity).toHaveBeenCalledWith(
+          mockSettings.serverUrl,
+          mockSettings.auth,
+          mockSettings.branch
+        );
+        expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(1);
+        expect(Teamcity.prototype.checkState).toHaveBeenCalledWith(
+          mockSettings.buildTypes
+        );
+        expect(app.state()).toHaveProperty('checkStateResult', [
+          'Build Type 1',
+        ]);
         expect(setInterval).toHaveBeenCalledTimes(1);
         app.unmount();
         expect(clearInterval).toHaveBeenCalledTimes(1);
