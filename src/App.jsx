@@ -57,7 +57,7 @@ class App extends Component {
     const { now, time, checkStateResult } = this.state;
     return (
       <LightIndicatorScreen {...checkStateResult}>
-        <TimerLabel now={now} time={time} />
+        <TimerLabel now={now} time={time} status={checkStateResult.status} />
       </LightIndicatorScreen>
     );
   }

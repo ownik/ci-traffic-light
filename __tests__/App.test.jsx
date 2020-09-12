@@ -21,10 +21,48 @@ describe('App', () => {
   });
 
   describe('Basic App tests', () => {
+    let wrapper;
+
+    afterEach(() => {
+      if (wrapper) wrapper.unmount();
+    });
+
     test('expected first element is LightIndicatorScreen', () => {
-      const wrapper = shallow(<App />);
+      wrapper = shallow(<App />);
       expect(wrapper.type()).toBe(LightIndicatorScreen);
     });
+
+    test.each`
+      text                     | checkStateResultItems               | checkStateResultStatus
+      ${'one build - success'} | ${['Build Type 1']}                 | ${'success'}
+      ${'two builds - fail'}   | ${['Build Type 2', 'Build Type 1']} | ${'fail'}
+    `(
+      'State changing $text',
+      async ({ checkStateResultItems, checkStateResultStatus }) => {
+        const checkStateResult = {
+          items: checkStateResultItems,
+          status: checkStateResultStatus,
+        };
+
+        wrapper = shallow(<App />, { disableLifecycleMethods: true });
+        wrapper.setState({ checkStateResult });
+
+        const lightScreenIndicator = wrapper.find(LightIndicatorScreen);
+        expect(lightScreenIndicator.props()).toHaveProperty(
+          'items',
+          checkStateResultItems
+        );
+        expect(lightScreenIndicator.props()).toHaveProperty(
+          'status',
+          checkStateResultStatus
+        );
+        const timerLabel = wrapper.find(TimerLabel);
+        expect(timerLabel.props()).toHaveProperty(
+          'status',
+          checkStateResultStatus
+        );
+      }
+    );
   });
 
   describe('Settings read', () => {
@@ -55,7 +93,11 @@ describe('App', () => {
         buildTypes: ['Build Type 1', 'Build Type 2', 'Build Type 3'],
       };
 
-      Teamcity.prototype.checkState.mockResolvedValueOnce(['Build Type 1']);
+      const checkStateResult = {
+        items: ['Build Type 1'],
+        status: 'success',
+      };
+      Teamcity.prototype.checkState.mockResolvedValueOnce(checkStateResult);
       fetchSettingsMock = fetchSettingsMock.mockResolvedValueOnce({
         data: mockSettings,
       });
@@ -76,9 +118,10 @@ describe('App', () => {
         expect(Teamcity.prototype.checkState).toHaveBeenCalledWith(
           mockSettings.buildTypes
         );
-        expect(app.state()).toHaveProperty('checkStateResult', [
-          'Build Type 1',
-        ]);
+        expect(app.state()).toHaveProperty(
+          'checkStateResult',
+          checkStateResult
+        );
         expect(setInterval).toHaveBeenCalledTimes(1);
         app.unmount();
         expect(clearInterval).toHaveBeenCalledTimes(1);
