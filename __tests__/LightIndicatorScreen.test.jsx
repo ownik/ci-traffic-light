@@ -69,9 +69,9 @@ describe('LightIndicatorScreen', () => {
     expect(wrapper.find(FailedItemList)).toHaveLength(1);
   });
 
-  test('FailedItemList invisible on status success', () => {
+  test('FailedItemList visible on status success', () => {
     const wrapper = shallow(<LightIndicatorScreen status="success" />);
-    expect(wrapper.find(FailedItemList)).toHaveLength(0);
+    expect(wrapper.find(FailedItemList)).toHaveLength(1);
   });
 
   test('FailedItemList visible on status fail with setted items', () => {

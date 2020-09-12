@@ -10,7 +10,7 @@ const LightIncicatorScreen = ({ status, colors, items, children }) => (
     style={{ backgroundColor: colors[status] }}
   >
     {children}
-    {status == 'fail' ? <FailedItemList items={items} /> : null}
+    <FailedItemList items={items} />
   </div>
 );
 
@@ -24,7 +24,7 @@ LightIncicatorScreen.propTypes = {
 LightIncicatorScreen.defaultProps = {
   status: 'fail',
   colors: { fail: 'red', success: 'green' },
-  items: [{ displayName: '1' }, { displayName: '2' }, { displayName: '3' }],
+  items: [],
   children: null,
 };
 

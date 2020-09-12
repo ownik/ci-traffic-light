@@ -1,4 +1,5 @@
 div.indicator-screen {
   height: 100vh;
   margin: 0;
+  transition: all 1s ease;
 }

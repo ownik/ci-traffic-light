@@ -3,6 +3,7 @@ div.timer-label {
   color: white;
   font-size: 4em;
   position: absolute;
+  transition: all 1s ease;
 }
 
 div.timer-label.fail {

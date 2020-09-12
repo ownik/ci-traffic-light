@@ -1,8 +1,9 @@
 div.failed-item-list {
+  visibility: visible;
   display: block;
   color: white;
   font-size: 4em;
-  position: absolute;  
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -10,4 +11,24 @@ div.failed-item-list {
 
 div.failed-item-list > ul {
   list-style: none;
+}
+
+div.failed-item-list > ul > li {
+  transition: opacity 1s;
+}
+
+div.failed-item-list > ul > li.enter {
+  opacity: 0;
+}
+
+div.failed-item-list > ul > li.enter-active {
+  opacity: 1;
+}
+
+div.failed-item-list > ul > li.exit {
+  opacity: 1;
+}
+
+div.failed-item-list > ul > li.exit-active {
+  opacity: 0;
 }
