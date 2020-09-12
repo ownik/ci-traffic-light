@@ -7,7 +7,7 @@ const secsInMinute = 60;
 const secsInHour = secsInMinute * 60;
 const secsInDay = secsInHour * 24;
 
-function toDDHHMM(time, now) {
+function toDDHHMM(time, now, separator) {
   const secs = (now - time) / msInSec;
 
   if (secs < 0) {
@@ -19,10 +19,13 @@ function toDDHHMM(time, now) {
   let minutes = Math.floor(
     (secs - days * secsInDay - hours * secsInHour) / secsInMinute
   );
+  let seconds = Math.floor(
+    secs - days * secsInDay - hours * secsInHour - minutes * secsInMinute
+  );
 
   if (days == 1) {
     days = `${days} day `;
-  } else if (days > 0) {
+  } else if (days > 1) {
     days = `${days} days `;
   } else {
     days = '';
@@ -34,24 +37,30 @@ function toDDHHMM(time, now) {
   if (minutes < 10) {
     minutes = '0' + minutes;
   }
+  if (seconds < 10) {
+    seconds = '0' + seconds;
+  }
 
-  return `${days}${hours}:${minutes}`;
+  return `${days}${hours}${separator}${minutes}${separator}${seconds}`;
 }
 
-const TimerLabel = ({ time, now, status }) => (
-  <div className={`timer-label ${status}`}>{toDDHHMM(time, now)}</div>
+const TimerLabel = ({ time, now, status, separator }) => (
+  <div className={`timer-label ${status}`}>
+    {toDDHHMM(time, now, separator)}
+  </div>
 );
-
 TimerLabel.propTypes = {
   time: PropTypes.instanceOf(Date),
   now: PropTypes.instanceOf(Date),
   status: PropTypes.oneOf(['fail', 'success']),
+  separator: PropTypes.string,
 };
 
 TimerLabel.defaultProps = {
   time: new Date(Date.now()),
   now: new Date(Date.now()),
   status: 'fail',
+  separator: ':',
 };
 
 export default TimerLabel;

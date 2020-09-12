@@ -163,21 +163,19 @@ describe('App', () => {
     let wrapper;
     let timerLabel;
     let timerEventMock;
-    let nowDate = new Date(2020, 4, 8, 20, 10, 30);
-    let mockDateNow;
 
     beforeAll(() => {
       jest.useFakeTimers();
-      mockDateNow = jest
-        .spyOn(Date, 'now')
-        .mockImplementation(() => nowDate.getTime());
+      Date.now = jest
+        .fn()
+        .mockReturnValue(new Date(2020, 4, 8, 20, 10, 30).getTime());
       wrapper = mount(<App />);
       timerLabel = wrapper.find(TimerLabel);
     });
 
     afterAll(() => {
       timerEventMock.mockRestore();
-      mockDateNow.mockRestore();
+      Date.now.mockRestore();
       jest.useRealTimers();
       wrapper.unmount();
     });
@@ -194,18 +192,20 @@ describe('App', () => {
       expect(timerLabel).toHaveLength(1);
     });
 
-    test('TimerLabel text is 00:00', () => {
-      expect(timerLabel.text()).toEqual('00:00');
+    test('TimerLabel text is 00:00:00', () => {
+      expect(timerLabel.text()).toEqual('00:00:00');
     });
 
     test('TimerLabel text is nowDate', () => {
-      expect(timerLabel.props()).toHaveProperty('time', nowDate);
+      expect(timerLabel.props()).toHaveProperty('time', new Date(Date.now()));
     });
 
     test('advance timers by 1000ms with nowDate changing cause update of TimerLabel text', () => {
-      nowDate = new Date(2020, 4, 8, 21, 12, 30);
+      Date.now = Date.now.mockReturnValue(
+        new Date(2020, 4, 8, 21, 12, 33).getTime()
+      );
       jest.advanceTimersByTime(1000);
-      expect(timerLabel.text()).toEqual('01:02');
+      expect(timerLabel.text()).toEqual('01:02:03');
     });
 
     test('advance timers by 5000ms cause calling timerEvent 5 times', () => {

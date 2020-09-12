@@ -42,6 +42,7 @@ class App extends Component {
   timerEvent() {
     this.setState({ now: new Date(Date.now()) });
     this.updateStateTime += 1000;
+
     if (this.updateStateTime >= this.settings.updateStateInterval) {
       this.updateState();
       this.updateStateTime = 0;
@@ -53,9 +54,9 @@ class App extends Component {
   }
 
   render() {
-    const { now, time } = this.state;
+    const { now, time, checkStateResult } = this.state;
     return (
-      <LightIndicatorScreen status="fail">
+      <LightIndicatorScreen {...checkStateResult}>
         <TimerLabel now={now} time={time} />
       </LightIndicatorScreen>
     );

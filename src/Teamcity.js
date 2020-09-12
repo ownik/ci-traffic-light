@@ -48,7 +48,7 @@ export class Teamcity {
 
   async fetchAllInvestigation() {
     const response = await this.httpGet(
-      `${this.serverUrl}/app/rest/investigations`
+      `${this.serverUrl}/app/rest/latest/investigations`
     );
 
     let investigations = new Investigations();
@@ -66,7 +66,7 @@ export class Teamcity {
   async isFinishedBuildFail(buildTypeId) {
     const goodStatuses = [STATUSES.Success, STATUSES.Unknown];
     const response = await this.httpGet(
-      `${this.serverUrl}/app/rest/builds?locator=branch:${this.branch},failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`
+      `${this.serverUrl}/app/rest/latest/builds?locator=branch:${this.branch},failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`
     );
     return response.data.build && response.data.build.length > 0
       ? !goodStatuses.includes(response.data.build[0].status.toUpperCase())
@@ -75,7 +75,7 @@ export class Teamcity {
 
   async isRunningBuildSuccess(buildTypeId) {
     const response = await this.httpGet(
-      `${this.serverUrl}/app/rest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,count:1,buildType:(${buildTypeId})`
+      `${this.serverUrl}/app/rest/latest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,count:1,buildType:(${buildTypeId})`
     );
     return response.data.build && response.data.build.length > 0
       ? response.data.build[0].status.toUpperCase() == STATUSES.Success
@@ -83,14 +83,16 @@ export class Teamcity {
   }
 
   async checkState(buildTypes) {
-    let result = [];
+    let items = [];
+
     const investigations = await this.fetchAllInvestigation();
+
     for (const buildType of buildTypes) {
       const finishedFailed = await this.isFinishedBuildFail(buildType);
       const runningSuccess = await this.isRunningBuildSuccess(buildType);
 
       if (finishedFailed || (runningSuccess != null && !runningSuccess)) {
-        result.push({
+        items.push({
           id: buildType,
           displayName: buildType,
           investigators: investigations.fetchInvestigationUserForBuildType(
@@ -100,6 +102,13 @@ export class Teamcity {
         });
       }
     }
-    return result;
+
+    let status = 'success';
+
+    if (items.length > 0) {
+      status = 'fail';
+    }
+
+    return { status, items };
   }
 }
