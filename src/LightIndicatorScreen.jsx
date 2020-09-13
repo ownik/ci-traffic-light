@@ -4,11 +4,8 @@ import FailedItemList from './FailedItemList';
 
 import './LightIndicatorScreen.css';
 
-const LightIncicatorScreen = ({ status, colors, items, children }) => (
-  <div
-    className={`indicator-screen ${status}`}
-    style={{ backgroundColor: colors[status] }}
-  >
+const LightIncicatorScreen = ({ status, styles, items, children }) => (
+  <div className={`indicator-screen ${status}`} style={styles[status]}>
     {children}
     <FailedItemList items={items} />
   </div>
@@ -16,14 +13,24 @@ const LightIncicatorScreen = ({ status, colors, items, children }) => (
 
 LightIncicatorScreen.propTypes = {
   status: PropTypes.string,
-  colors: PropTypes.object,
+  styles: PropTypes.object,
   items: PropTypes.array,
   children: PropTypes.node,
 };
 
 LightIncicatorScreen.defaultProps = {
   status: 'fail',
-  colors: { fail: 'red', success: 'green' },
+  styles: {
+    fail: {
+      background: 'linear-gradient(#FF416C, #FF4B2B)',
+    },
+    investigation: {
+      background: 'linear-gradient(#FFC11E, #FFD600)',
+    },
+    success: {
+      background: 'linear-gradient(#11998E, #38EF7D)',
+    },
+  },
   items: [],
   children: null,
 };
