@@ -98,7 +98,7 @@ export class Teamcity {
               investigators: investigations.fetchInvestigationUserForBuildType(
                 buildType
               ),
-              isRunning: runningSuccess != null,
+              running: runningSuccess != null,
             };
           }
 

@@ -188,13 +188,13 @@ describe('Teamcity', () => {
           id: 'Build 1',
           displayName: 'Build 1',
           investigators: [],
-          isRunning: false,
+          running: false,
         },
         {
           id: 'Build 2',
           displayName: 'Build 2',
           investigators: [],
-          isRunning: false,
+          running: false,
         },
       ],
       status: 'fail',
@@ -206,13 +206,13 @@ describe('Teamcity', () => {
           id: 'Build 1',
           displayName: 'Build 1',
           investigators: ['user1'],
-          isRunning: false,
+          running: false,
         },
         {
           id: 'Build 2',
           displayName: 'Build 2',
           investigators: ['user1'],
-          isRunning: false,
+          running: false,
         },
       ],
       status: 'fail',
@@ -221,10 +221,10 @@ describe('Teamcity', () => {
     test.each`
       text                                          | buildTypes                | investigations                                                            | failedBuilds              | runningSuccessBuilds    | expected
       ${'one build - no failed'}                    | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{}}                   | ${{ items: [], status: 'success' }}
-      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                   | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: false }], status: 'fail' }}
-      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': false }} | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }], status: 'fail' }}
+      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                   | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: false }], status: 'fail' }}
+      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': false }} | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: true }], status: 'fail' }}
       ${'one build - running success'}              | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': true }}  | ${{ items: [], status: 'success' }}
-      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], isRunning: true }], status: 'fail' }}
+      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: true }], status: 'fail' }}
       ${'two build - failed'}                       | ${['Build 1', 'Build 2']} | ${new Investigations()}                                                   | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsExpected}
       ${'two build - failed one same investigator'} | ${['Build 1', 'Build 2']} | ${new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])} | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsOneSameInvestigatorExpected}
     `(

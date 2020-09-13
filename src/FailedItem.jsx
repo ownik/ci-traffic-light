@@ -1,10 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ProgressSpinner from './ProgressSpinner';
+import './ProgressSpinner.css';
 
-const FailedItem = ({ displayName }) => <li>{displayName}</li>;
+const FailedItem = ({ displayName, running }) => (
+  <li>
+    <span>{displayName}</span>
+    {running && <ProgressSpinner />}
+  </li>
+);
 
 FailedItem.propTypes = {
   displayName: PropTypes.string,
+  running: PropTypes.bool,
 };
 
 export default FailedItem;

@@ -18,24 +18,27 @@ describe('LightIndicatorScreen', () => {
 
   test('check colors props - default status', () => {
     const wrapper = shallow(<LightIndicatorScreen color={colors} />);
-    expect(wrapper.get(0).props.style).toHaveProperty('backgroundColor', 'red');
+    expect(wrapper.get(0).props.style).toEqual({
+      background: 'linear-gradient(#FF416C, #FF4B2B)',
+    });
   });
 
   test('check colors props - fail status', () => {
     const wrapper = shallow(
       <LightIndicatorScreen color={colors} status="fail" />
     );
-    expect(wrapper.get(0).props.style).toHaveProperty('backgroundColor', 'red');
+    expect(wrapper.get(0).props.style).toEqual({
+      background: 'linear-gradient(#FF416C, #FF4B2B)',
+    });
   });
 
   test('check colors props - success status', () => {
     const wrapper = shallow(
       <LightIndicatorScreen color={colors} status="success" />
     );
-    expect(wrapper.get(0).props.style).toHaveProperty(
-      'backgroundColor',
-      'green'
-    );
+    expect(wrapper.get(0).props.style).toEqual({
+      background: 'linear-gradient(#11998E, #38EF7D)',
+    });
   });
 
   test('correct render children', () => {
