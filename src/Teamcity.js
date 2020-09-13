@@ -83,25 +83,29 @@ export class Teamcity {
   }
 
   async checkState(buildTypes) {
-    let items = [];
-
     const investigations = await this.fetchAllInvestigation();
 
-    for (const buildType of buildTypes) {
-      const finishedFailed = await this.isFinishedBuildFail(buildType);
-      const runningSuccess = await this.isRunningBuildSuccess(buildType);
+    const items = (
+      await Promise.all(
+        buildTypes.map(async (buildType) => {
+          const finishedFailed = await this.isFinishedBuildFail(buildType);
+          const runningSuccess = await this.isRunningBuildSuccess(buildType);
 
-      if (finishedFailed || (runningSuccess != null && !runningSuccess)) {
-        items.push({
-          id: buildType,
-          displayName: buildType,
-          investigators: investigations.fetchInvestigationUserForBuildType(
-            buildType
-          ),
-          isRunning: runningSuccess != null,
-        });
-      }
-    }
+          if (finishedFailed || (runningSuccess != null && !runningSuccess)) {
+            return {
+              id: buildType,
+              displayName: buildType,
+              investigators: investigations.fetchInvestigationUserForBuildType(
+                buildType
+              ),
+              isRunning: runningSuccess != null,
+            };
+          }
+
+          return null;
+        })
+      )
+    ).filter((item) => item != null);
 
     let status = 'success';
 
