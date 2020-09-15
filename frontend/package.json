@@ -1,7 +1,7 @@
 {
-  "name": "ci-state-indicator",
+  "name": "ci-state-indicator-frontend",
   "version": "0.1.0",
-  "description": "Continuous integration system state indicator (also knowns as Traffic light)",
+  "description": "Frontend for continuous integration system state indicator (also knowns as Traffic light)",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",

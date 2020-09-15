@@ -5,7 +5,6 @@ import LightIndicatorScreen from './LightIndicatorScreen';
 import TimerLabel from './TimerLabel';
 
 import axios from 'axios';
-import { Teamcity } from './Teamcity';
 
 class App extends Component {
   constructor(props) {
@@ -22,8 +21,6 @@ class App extends Component {
     this.updateStateTime = 0;
     this.fetchSettings().then((responce) => {
       this.settings = responce.data;
-      const { serverUrl, auth, branch } = this.settings;
-      this.teamcity = new Teamcity(serverUrl, auth, branch);
       this.updateState();
       this.interval = setInterval(() => this.timerEvent(), 1000);
     });
@@ -34,9 +31,13 @@ class App extends Component {
   }
 
   updateState() {
-    this.teamcity.checkState(this.settings.buildTypes).then((result) => {
-      this.setState({ checkStateResult: result });
-    });
+    axios
+      .post('/state.json', {
+        buildTypes: this.settings.buildTypes,
+      })
+      .then((responce) => {
+        this.setState({ checkStateResult: responce.data });
+      });
   }
 
   timerEvent() {

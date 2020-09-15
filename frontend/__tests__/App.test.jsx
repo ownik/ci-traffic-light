@@ -9,17 +9,10 @@ import TimerLabel from '../src/TimerLabel';
 
 jest.mock('axios', () => ({
   get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
+  post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
 
-jest.mock('../src/Teamcity');
-Teamcity.prototype.checkState.mockResolvedValue([]);
-
 describe('App', () => {
-  beforeEach(() => {
-    Teamcity.mockClear();
-    Teamcity.prototype.checkState.mockClear();
-  });
-
   describe('Basic App tests', () => {
     let wrapper;
 
@@ -73,6 +66,7 @@ describe('App', () => {
     beforeEach(() => {
       jest.useFakeTimers();
       mockAxios.get.mockClear();
+      mockAxios.post.mockClear();
       fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
       updateStateMock = jest.spyOn(App.prototype, 'updateState');
     });
@@ -97,7 +91,7 @@ describe('App', () => {
         items: ['Build Type 1'],
         status: 'success',
       };
-      Teamcity.prototype.checkState.mockResolvedValueOnce(checkStateResult);
+      mockAxios.post.mockResolvedValueOnce({ data: checkStateResult });
       fetchSettingsMock = fetchSettingsMock.mockResolvedValueOnce({
         data: mockSettings,
       });
@@ -106,18 +100,11 @@ describe('App', () => {
 
       setImmediate(() => {
         expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
-        expect(app.instance().teamcity).toBeInstanceOf(Teamcity);
         expect(updateStateMock).toHaveBeenCalledTimes(1);
-        expect(Teamcity).toHaveBeenCalledTimes(1);
-        expect(Teamcity).toHaveBeenCalledWith(
-          mockSettings.serverUrl,
-          mockSettings.auth,
-          mockSettings.branch
-        );
-        expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(1);
-        expect(Teamcity.prototype.checkState).toHaveBeenCalledWith(
-          mockSettings.buildTypes
-        );
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
+        expect(mockAxios.post).toHaveBeenCalledWith('/state.json', {
+          buildTypes: mockSettings.buildTypes,
+        });
         expect(app.state()).toHaveProperty(
           'checkStateResult',
           checkStateResult
