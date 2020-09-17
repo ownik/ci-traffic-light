@@ -1,0 +1,11 @@
+{
+  "name": "ci-state-indicator",
+  "version": "0.1.0",
+  "description": "Continuous integration system state indicator (also knowns as Traffic light)",
+  "private": true,
+  "scripts": {},
+  "author": "Nikita Ostrenkov",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
+}

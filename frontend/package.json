@@ -2,6 +2,7 @@
   "name": "ci-state-indicator-frontend",
   "version": "0.1.0",
   "description": "Frontend for continuous integration system state indicator (also knowns as Traffic light)",
+  "private": true,
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
@@ -29,9 +30,7 @@
     "eslint-config-recommended": "^4.1.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jest": "^23.20.0",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.20.6",
     "html-webpack-plugin": "^4.4.1",
     "identity-obj-proxy": "^3.0.0",
@@ -59,7 +58,6 @@
     ],
     "modulePathIgnorePatterns": [
       "./__tests__/setupTests.js",
-      "./__tests__/teamcityTestUtils.js",
       "node_modules"
     ],
     "moduleNameMapper": {

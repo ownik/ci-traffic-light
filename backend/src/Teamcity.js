@@ -1,12 +1,12 @@
-import axios from 'axios';
+const axios = require("axios");
 
-export const STATUSES = {
-  Success: 'SUCCESS',
-  Unknown: 'UNKNOWN',
-  FAILURE: 'FAILURE',
+const STATUSES = {
+  Success: "SUCCESS",
+  Unknown: "UNKNOWN",
+  FAILURE: "FAILURE",
 };
 
-export class Investigations {
+class Investigations {
   constructor() {
     this.table = {};
   }
@@ -30,7 +30,7 @@ export class Investigations {
   }
 }
 
-export class Teamcity {
+class Teamcity {
   constructor(serverUrl, auth, branch) {
     this.serverUrl = serverUrl;
     this.auth = auth;
@@ -40,7 +40,7 @@ export class Teamcity {
   httpGet(url) {
     return axios.get(url, {
       headers: {
-        Accept: 'application/json',
+        Accept: "application/json",
       },
       auth: this.auth,
     });
@@ -107,12 +107,17 @@ export class Teamcity {
       )
     ).filter((item) => item != null);
 
-    let status = 'success';
+    let status = "success";
 
     if (items.length > 0) {
-      status = 'fail';
+      status = "fail";
     }
 
     return { status, items };
   }
 }
+
+module.exports = {
+  Investigations,
+  Teamcity,
+};

@@ -6,21 +6,13 @@
     "node": true,
     "jest/globals": true
   },
-  "plugins": ["react", "jest", "prettier"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:prettier/recommended"
-  ],
+  "plugins": ["jest", "prettier"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
   "parserOptions": {
     "sourceType": "module",
     "ecmaVersion": 2018
   },
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  },
+  "settings": {},
   "rules": {
     "prettier/prettier": "error",
     "linebreak-style": ["error", "unix"],

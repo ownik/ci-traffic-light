@@ -1,4 +1,4 @@
-export const makeBuildsJson = (buildTypeId, status) => {
+const makeBuildsJson = (buildTypeId, status) => {
   if (status === null) {
     return {
       href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
@@ -14,9 +14,9 @@ export const makeBuildsJson = (buildTypeId, status) => {
       {
         id: 1,
         buildTypeId: buildTypeId,
-        number: '1',
+        number: "1",
         status: status,
-        state: 'finished',
+        state: "finished",
         href: `/app/rest/builds/id:1`,
         webUrl: `http://localhost:8111/viewLog.html?buildId=1&buildTypeId=${buildTypeId}`,
       },
@@ -24,7 +24,7 @@ export const makeBuildsJson = (buildTypeId, status) => {
   };
 };
 
-export const makeRunningBuildsJson = (buildTypeId, status) => {
+const makeRunningBuildsJson = (buildTypeId, status) => {
   if (status === null) {
     return {
       href: `/app/rest/builds?locator=branch:(default:true),failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`,
@@ -40,9 +40,9 @@ export const makeRunningBuildsJson = (buildTypeId, status) => {
       {
         id: 1,
         buildTypeId: buildTypeId,
-        number: '1',
+        number: "1",
         status: status,
-        state: 'running',
+        state: "running",
         percentageComplete: 34,
         href: `/app/rest/builds/id:1`,
         webUrl: `http://localhost:8111/viewLog.html?buildId=1&buildTypeId=${buildTypeId}`,
@@ -51,28 +51,28 @@ export const makeRunningBuildsJson = (buildTypeId, status) => {
   };
 };
 
-export const makeInvestigationJson = (arr) => {
+const makeInvestigationJson = (arr) => {
   if (arr.length === 0) {
     return {
-      href: '/app/rest/investigations',
+      href: "/app/rest/investigations",
     };
   }
 
   let investigations = arr.map((item) => ({
     id: `buildType:(id:${item.buildType})`,
-    state: 'TAKEN',
+    state: "TAKEN",
     href: `/app/rest/investigations/buildType:(id:${item.buildType})`,
     assignee: {
       username: item.username,
       id: 1,
-      href: '/app/rest/users/id:1',
+      href: "/app/rest/users/id:1",
     },
     assignment: {
-      timestamp: '20200616T172532+0300',
+      timestamp: "20200616T172532+0300",
       user: {
-        username: 'root',
+        username: "root",
         id: 1,
-        href: '/app/rest/users/id:1',
+        href: "/app/rest/users/id:1",
       },
     },
     scope: {
@@ -80,9 +80,9 @@ export const makeInvestigationJson = (arr) => {
         count: 1,
         buildType: item.buildTypes.map((buildType) => ({
           id: buildType,
-          name: 'Build 1',
-          projectName: 'Main',
-          projectId: 'Main',
+          name: "Build 1",
+          projectName: "Main",
+          projectId: "Main",
           href: `/app/rest/buildTypes/id:${buildType}`,
           webUrl: `http://localhost:8111/viewType.html?buildTypeId=${buildType}`,
         })),
@@ -92,13 +92,19 @@ export const makeInvestigationJson = (arr) => {
       anyProblem: true,
     },
     resolution: {
-      type: 'whenFixed',
+      type: "whenFixed",
     },
   }));
 
   return {
     count: 1,
-    href: '/app/rest/investigations',
+    href: "/app/rest/investigations",
     investigation: investigations,
   };
+};
+
+module.exports = {
+  makeBuildsJson,
+  makeRunningBuildsJson,
+  makeInvestigationJson,
 };

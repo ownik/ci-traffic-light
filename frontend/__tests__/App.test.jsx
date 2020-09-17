@@ -2,7 +2,6 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 import mockAxios from 'axios';
 import App from '../src/App';
-import { Teamcity } from '../src/Teamcity';
 
 import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
