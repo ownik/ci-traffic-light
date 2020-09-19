@@ -97,7 +97,6 @@ describe("StateReciever", () => {
 
     expect(updateStateSpy).toHaveBeenCalledTimes(0);
     expect(stateReciever.state()).toEqual({});
-    expect(stateReciever.lastChangedStatusTime()).toEqual(Date.now());
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       0
     );
@@ -109,18 +108,13 @@ describe("StateReciever", () => {
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(stateReciever.state()).toEqual(state1);
-    expect(stateReciever.lastChangedStatusTime()).toEqual(nowTime1);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
-    );
-    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
-      nowTime1
     );
 
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(stateReciever.state()).toEqual(state1);
-    expect(stateReciever.lastChangedStatusTime()).toEqual(nowTime1);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
@@ -132,12 +126,8 @@ describe("StateReciever", () => {
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(stateReciever.state()).toEqual(state2);
-    expect(stateReciever.lastChangedStatusTime()).toEqual(nowTime2);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       2
-    );
-    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
-      nowTime2
     );
   });
 });

@@ -10,8 +10,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: new Date(Date.now()),
-      now: new Date(Date.now()),
+      lastChangedStatusTime: Date.now(),
+      now: Date.now(),
       checkStateResult: {},
     };
     this.timerEvent = this.timerEvent.bind(this);
@@ -21,6 +21,9 @@ class App extends Component {
     this.updateStateTime = 0;
     this.fetchSettings().then((responce) => {
       this.settings = responce.data;
+      this.setState({
+        lastChangedStatusTime: this.settings.lastChangedStatusTime,
+      });
       this.updateState();
       this.interval = setInterval(() => this.timerEvent(), 1000);
     });
@@ -37,7 +40,7 @@ class App extends Component {
   }
 
   timerEvent() {
-    this.setState({ now: new Date(Date.now()) });
+    this.setState({ now: Date.now() });
     this.updateStateTime += 1000;
 
     if (this.updateStateTime >= this.settings.updateStateInterval) {
@@ -51,10 +54,14 @@ class App extends Component {
   }
 
   render() {
-    const { now, time, checkStateResult } = this.state;
+    const { now, lastChangedStatusTime, checkStateResult } = this.state;
     return (
       <LightIndicatorScreen {...checkStateResult}>
-        <TimerLabel now={now} time={time} status={checkStateResult.status} />
+        <TimerLabel
+          now={now}
+          time={lastChangedStatusTime}
+          status={checkStateResult.status}
+        />
       </LightIndicatorScreen>
     );
   }

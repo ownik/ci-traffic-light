@@ -82,6 +82,7 @@ describe('App', () => {
         auth: { user: 'root', password: '123456' },
         branch: 'default',
         buildTypes: ['Build Type 1', 'Build Type 2', 'Build Type 3'],
+        lastChangedStatusTime: Date.now(),
       };
 
       const checkStateResult = {
@@ -112,7 +113,10 @@ describe('App', () => {
     });
 
     test('check updateState interval 5000ms', (done) => {
-      const settings = { updateStateInterval: 5000 };
+      const settings = {
+        updateStateInterval: 5000,
+        lastChangedStatusTime: Date.now(),
+      };
 
       fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
         data: settings,
@@ -133,7 +137,10 @@ describe('App', () => {
     });
 
     test('check updateState interval 30000ms', (done) => {
-      const settings = { updateStateInterval: 30000 };
+      const settings = {
+        updateStateInterval: 30000,
+        lastChangedStatusTime: Date.now(),
+      };
 
       fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
         data: settings,
@@ -188,18 +195,24 @@ describe('App', () => {
     let wrapper;
     let timerLabel;
     let timerEventMock;
+    let fetchSettingsMock;
 
     beforeAll(() => {
       jest.useFakeTimers();
       Date.now = jest
         .fn()
         .mockReturnValue(new Date(2020, 4, 8, 20, 10, 30).getTime());
+      fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
+      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+        data: { lastChangedStatusTime: Date.now() },
+      });
       wrapper = mount(<App />);
       timerLabel = wrapper.find(TimerLabel);
     });
 
     afterAll(() => {
       timerEventMock.mockRestore();
+      fetchSettingsMock.mockRestore();
       Date.now.mockRestore();
       jest.useRealTimers();
       wrapper.unmount();
@@ -222,7 +235,7 @@ describe('App', () => {
     });
 
     test('TimerLabel text is nowDate', () => {
-      expect(timerLabel.props()).toHaveProperty('time', new Date(Date.now()));
+      expect(timerLabel.props()).toHaveProperty('time', Date.now());
     });
 
     test('advance timers by 1000ms with nowDate changing cause update of TimerLabel text', () => {

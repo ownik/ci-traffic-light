@@ -49,16 +49,17 @@ const TimerLabel = ({ time, now, status, separator }) => (
     {toDDHHMM(time, now, separator)}
   </div>
 );
+
 TimerLabel.propTypes = {
-  time: PropTypes.instanceOf(Date),
-  now: PropTypes.instanceOf(Date),
+  time: PropTypes.Number,
+  now: PropTypes.Number,
   status: PropTypes.oneOf(['fail', 'success']),
   separator: PropTypes.string,
 };
 
 TimerLabel.defaultProps = {
-  time: new Date(Date.now()),
-  now: new Date(Date.now()),
+  time: Date.now(),
+  now: Date.now(),
   status: 'fail',
   separator: ':',
 };

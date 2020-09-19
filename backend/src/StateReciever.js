@@ -9,7 +9,6 @@ class StateReciever {
     }, settings.updateStateInterval);
     this._teamcity = new Teamcity(settings);
     this._state = {};
-    this._lastChangedStatusTime = Date.now();
   }
 
   settingsStorage() {
@@ -20,19 +19,12 @@ class StateReciever {
     return this._state;
   }
 
-  lastChangedStatusTime() {
-    return this._lastChangedStatusTime;
-  }
-
   updateState() {
     this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
         if (state.status != this._state.status) {
-          this._lastChangedStatusTime = Date.now();
-          this._settingsStorage.updateLastChangedStatusTime(
-            this._lastChangedStatusTime
-          );
+          this._settingsStorage.updateLastChangedStatusTime();
         }
         this._state = state;
       });
