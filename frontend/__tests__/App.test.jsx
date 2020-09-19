@@ -8,7 +8,6 @@ import TimerLabel from '../src/TimerLabel';
 
 jest.mock('axios', () => ({
   get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
-  post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
 
 describe('App', () => {
@@ -65,7 +64,6 @@ describe('App', () => {
     beforeEach(() => {
       jest.useFakeTimers();
       mockAxios.get.mockClear();
-      mockAxios.post.mockClear();
       fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
       updateStateMock = jest.spyOn(App.prototype, 'updateState');
     });
@@ -90,7 +88,7 @@ describe('App', () => {
         items: ['Build Type 1'],
         status: 'success',
       };
-      mockAxios.post.mockResolvedValueOnce({ data: checkStateResult });
+      mockAxios.get.mockResolvedValueOnce({ data: checkStateResult });
       fetchSettingsMock = fetchSettingsMock.mockResolvedValueOnce({
         data: mockSettings,
       });
@@ -100,10 +98,8 @@ describe('App', () => {
       setImmediate(() => {
         expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
         expect(updateStateMock).toHaveBeenCalledTimes(1);
-        expect(mockAxios.post).toHaveBeenCalledTimes(1);
-        expect(mockAxios.post).toHaveBeenCalledWith('/state.json', {
-          buildTypes: mockSettings.buildTypes,
-        });
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith('/state.json');
         expect(app.state()).toHaveProperty(
           'checkStateResult',
           checkStateResult

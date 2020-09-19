@@ -31,13 +31,9 @@ class App extends Component {
   }
 
   updateState() {
-    axios
-      .post('/state.json', {
-        buildTypes: this.settings.buildTypes,
-      })
-      .then((responce) => {
-        this.setState({ checkStateResult: responce.data });
-      });
+    axios.get('/state.json').then((responce) => {
+      this.setState({ checkStateResult: responce.data });
+    });
   }
 
   timerEvent() {
