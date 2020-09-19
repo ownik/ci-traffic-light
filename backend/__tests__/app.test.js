@@ -1,9 +1,9 @@
 const request = require("supertest");
 const SettingsStorage = require("../src/SettingsStorage");
-const { Teamcity } = require("../src/Teamcity");
+const StateReciever = require("../src/StateReciever");
 
 jest.mock("../src/SettingsStorage");
-jest.mock("../src/Teamcity");
+jest.mock("../src/StateReciever");
 
 const mockSettings = {
   serverUrl: "http://localhost:8112",
@@ -32,30 +32,39 @@ const mockTeamcityState = {
 };
 
 describe("App", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
   test("/settings.json should return settings from SettingsStorage", async () => {
     SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
 
     expect(SettingsStorage).toHaveBeenCalledTimes(0);
     expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(0);
+    expect(StateReciever).toHaveBeenCalledTimes(0);
 
     const app = require("../app");
 
-    expect(SettingsStorage).toHaveBeenCalledTimes(1);
-    expect(SettingsStorage).toHaveBeenCalledWith("./settings.json");
-    expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(1);
+    expect(StateReciever).toHaveBeenCalledTimes(1);
+    expect(StateReciever).toHaveBeenCalledWith(expect.any(SettingsStorage));
 
     const responce = await request(app).get("/settings.json");
 
     expect(SettingsStorage).toHaveBeenCalledTimes(1);
-    expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(2);
+    expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(1);
 
     expect(responce.status).toEqual(200);
     expect(responce.body).toEqual(mockSettings);
   });
 
   test("/state.json should return state from Teamcity", async () => {
-    SettingsStorage.prototype.settings.mockReturnValueOnce(mockSettings);
-    Teamcity.prototype.checkState.mockResolvedValueOnce(mockTeamcityState);
+    SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
+    StateReciever.prototype.state.mockReturnValue(mockTeamcityState);
     const app = require("../app");
     const responce = await request(app).get("/state.json");
 

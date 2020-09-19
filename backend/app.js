@@ -3,11 +3,10 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const SettingsStorage = require("./src/SettingsStorage");
-const { Teamcity } = require("./src/Teamcity");
+const StateReciever = require("./src/StateReciever");
 
 const settingsStorage = new SettingsStorage("./settings.json");
-const settings = settingsStorage.settings();
-const teamcity = new Teamcity(settings);
+const stateReciever = new StateReciever(settingsStorage);
 
 const app = express();
 
@@ -23,7 +22,7 @@ app.get("/settings.json", (req, res) => {
 });
 
 app.get("/state.json", async (req, res) => {
-  res.json(await teamcity.checkState(settings.buildTypes));
+  res.json(stateReciever.state());
 });
 
 module.exports = app;

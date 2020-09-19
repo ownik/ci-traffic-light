@@ -2,11 +2,19 @@ const fs = require("fs");
 
 class SettingsStorage {
   constructor(file) {
-    this.__file = file;
+    this._file = file;
+    this._settings = JSON.parse(fs.readFileSync(this._file));
   }
 
   settings() {
-    return JSON.parse(fs.readFileSync(this.__file));
+    return this._settings;
+  }
+
+  updateLastChangedStatusTime(date) {
+    fs.writeFileSync(
+      this._file,
+      JSON.stringify({ ...this._settings, lastChangedStatusTime: date }, 2)
+    );
   }
 }
 
