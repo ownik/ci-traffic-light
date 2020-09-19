@@ -11,11 +11,11 @@ jest.mock("axios", () => ({
 }));
 
 describe("Teamcity", () => {
-  const teamcity = new Teamcity(
-    "some url",
-    { username: "root", password: "123456" },
-    "some-branch"
-  );
+  const teamcity = new Teamcity({
+    serverUrl: "some url",
+    auth: { username: "root", password: "123456" },
+    branch: "some-branch",
+  });
 
   afterEach(() => {
     mockAxios.get.mockClear();

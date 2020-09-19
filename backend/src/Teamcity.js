@@ -31,10 +31,10 @@ class Investigations {
 }
 
 class Teamcity {
-  constructor(serverUrl, auth, branch) {
-    this.serverUrl = serverUrl;
-    this.auth = auth;
-    this.branch = branch;
+  constructor(settings) {
+    this.serverUrl = settings.serverUrl;
+    this.auth = settings.auth;
+    this.branch = settings.branch;
   }
 
   httpGet(url) {

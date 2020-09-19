@@ -1,0 +1,7 @@
+{
+  "serverUrl": "http://localhost:8111",
+  "auth": { "username": "root", "password": "123456" },
+  "branch": "(default:true)",
+  "buildTypes": ["CiIndicatorTest_Build1", "CiIndicatorTest_Build2"],
+  "updateStateInterval": 10000
+}
