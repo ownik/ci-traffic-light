@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - "**"
 
 jobs:
   build:
@@ -18,17 +15,26 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
+      - name: Install root dependencies
+        run: npm ci
+        working-directory: ./
       - name: Install backend dependencies
-        run: npm install
+        run: npm ci
         working-directory: backend
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
         working-directory: frontend
-      - name: Testing backend
+      - name: Testing
         run: npm test
-        working-directory: backend
-      - name: Testing frontend
-        run: npm test
-        working-directory: frontend
+        working-directory: ./
         env:
           CI: true
+      - name: Install codecov
+        run: npm install -g codecov
+        working-directory: ./
+      - name: Codecov
+        run: npm run codecov
+        working-directory: ./
+        env:
+          CI: true
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

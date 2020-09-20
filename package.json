@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "test:frontend": "jest --projects frontend",
-    "test:backend": "jest --projects frontend"
+    "test:backend": "jest --projects frontend",
+    "codecov": "jest --ci --coverage && codecov"
   },
   "author": "Nikita Ostrenkov",
   "license": "MIT",
