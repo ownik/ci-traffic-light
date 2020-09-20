@@ -12,6 +12,7 @@ const app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
+app.set("json spaces", 2);
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 console.log(path.join(__dirname, "public"));
