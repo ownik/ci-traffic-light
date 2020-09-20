@@ -2,6 +2,7 @@
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-purple.svg)](LICENSE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fownik%2Fci-state-indicator.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fownik%2Fci-state-indicator?ref=badge_shield)
+[![codecov](https://codecov.io/gh/ownik/ci-state-indicator/branch/master/graph/badge.svg)](https://codecov.io/gh/ownik/ci-state-indicator)
 
 ## License
 
