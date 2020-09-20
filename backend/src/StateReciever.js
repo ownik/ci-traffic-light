@@ -16,7 +16,11 @@ class StateReciever {
   }
 
   state() {
-    return this._state;
+    return {
+      ...this._state,
+      lastChangedStatusTime: this._settingsStorage.settings()
+        .lastChangedStatusTime,
+    };
   }
 
   updateState() {

@@ -51,8 +51,8 @@ const TimerLabel = ({ time, now, status, separator }) => (
 );
 
 TimerLabel.propTypes = {
-  time: PropTypes.Number,
-  now: PropTypes.Number,
+  time: PropTypes.number,
+  now: PropTypes.number,
   status: PropTypes.oneOf(['fail', 'success']),
   separator: PropTypes.string,
 };

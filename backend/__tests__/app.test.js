@@ -11,9 +11,10 @@ const mockSettings = {
   branch: "stable",
   buildTypes: ["Build 1", "Build 2", "Build 3"],
   updateStateInterval: 9999,
+  lastChangedStatusTime: new Date(2020, 9, 20, 16, 55, 11).getTime(),
 };
 
-const mockTeamcityState = {
+const mockState = {
   items: [
     {
       id: "Build 1",
@@ -29,6 +30,7 @@ const mockTeamcityState = {
     },
   ],
   status: "fail",
+  lastChangedStatusTime: new Date(2020, 9, 20, 16, 55, 11).getTime(),
 };
 
 describe("App", () => {
@@ -64,11 +66,14 @@ describe("App", () => {
 
   test("/state.json should return state from Teamcity", async () => {
     SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
-    StateReciever.prototype.state.mockReturnValue(mockTeamcityState);
+    StateReciever.prototype.state.mockReturnValue(mockState);
     const app = require("../app");
     const responce = await request(app).get("/state.json");
 
-    expect(responce.body).toEqual(mockTeamcityState);
+    expect(responce.body).toEqual({
+      ...mockState,
+      lastChangedStatusTime: mockSettings.lastChangedStatusTime,
+    });
     expect(responce.status).toEqual(200);
   });
 });

@@ -92,6 +92,9 @@ describe("Settings", () => {
     );
 
     settingsStorage.updateLastChangedStatusTime(newTime.getTime());
+    expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
+      newTime.getTime()
+    );
 
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(2);
     expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
@@ -120,8 +123,11 @@ describe("Settings", () => {
     fs.readFileSync.mockReturnValue(JSON.stringify(mockSettings));
     const settingsStorage = new SettingsStorage("settings.json");
     const newTime = new Date(2020, 9, 20, 21, 18, 33);
-    Date.now.mockReturnValue(newTime);
+    Date.now.mockReturnValue(newTime.getTime());
     settingsStorage.updateLastChangedStatusTime(newTime.getTime());
+    expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
+      newTime.getTime()
+    );
 
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -129,7 +135,7 @@ describe("Settings", () => {
       JSON.stringify(
         {
           ...mockSettings,
-          lastChangedStatusTime: newTime,
+          lastChangedStatusTime: newTime.getTime(),
         },
         null,
         2

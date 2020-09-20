@@ -6,6 +6,8 @@ const fs = require("fs");
 jest.mock("../src/Teamcity");
 jest.mock("../src/SettingsStorage");
 
+const lastChangedStatusTime = new Date(2020, 9, 20, 16, 55, 11).getTime();
+
 const makeSettings = (timeout) => {
   return {
     serverUrl: "http://localhost:8112",
@@ -13,6 +15,7 @@ const makeSettings = (timeout) => {
     branch: "stable",
     buildTypes: ["Build 1", "Build 2", "Build 3"],
     updateStateInterval: timeout,
+    lastChangedStatusTime,
   };
 };
 
@@ -91,12 +94,54 @@ describe("StateReciever", () => {
     expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(5);
   });
 
-  test("check update state and last state changed time", async () => {
+  test("check last state changed time", async () => {
     settingsStorage.settings.mockReturnValue(makeSettings(1000));
     stateReciever = new StateReciever(settingsStorage);
 
     expect(updateStateSpy).toHaveBeenCalledTimes(0);
-    expect(stateReciever.state()).toEqual({});
+    expect(stateReciever.state()).toStrictEqual({ lastChangedStatusTime });
+
+    const state1 = { item: {}, status: "success" };
+    const nowTime1 = new Date(2020, 9, 19, 16, 39, 51).getTime();
+    Date.now.mockReturnValueOnce(nowTime1);
+    Teamcity.prototype.checkState.mockResolvedValue(state1);
+    settingsStorage.settings.mockReturnValue({
+      lastChangedStatusTime: nowTime1,
+    });
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    expect(stateReciever.state()).toStrictEqual({
+      ...state1,
+      lastChangedStatusTime: nowTime1,
+    });
+
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    expect(stateReciever.state()).toStrictEqual({
+      ...state1,
+      lastChangedStatusTime: nowTime1,
+    });
+
+    const state2 = { item: ["Build 1"], status: "fail" };
+    const nowTime2 = new Date(2020, 9, 20, 16, 55, 11).getTime();
+    Date.now.mockReturnValueOnce(nowTime2);
+    Teamcity.prototype.checkState.mockResolvedValue(state2);
+    settingsStorage.settings.mockReturnValue({
+      lastChangedStatusTime: nowTime2,
+    });
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    expect(stateReciever.state()).toStrictEqual({
+      ...state2,
+      lastChangedStatusTime: nowTime2,
+    });
+  });
+
+  test("check update last state changed time", async () => {
+    settingsStorage.settings.mockReturnValue(makeSettings(1000));
+    stateReciever = new StateReciever(settingsStorage);
+
+    expect(updateStateSpy).toHaveBeenCalledTimes(0);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       0
     );
@@ -107,14 +152,12 @@ describe("StateReciever", () => {
     Teamcity.prototype.checkState.mockResolvedValue(state1);
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
-    expect(stateReciever.state()).toEqual(state1);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
 
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
-    expect(stateReciever.state()).toEqual(state1);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
@@ -125,7 +168,6 @@ describe("StateReciever", () => {
     Teamcity.prototype.checkState.mockResolvedValue(state2);
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
-    expect(stateReciever.state()).toEqual(state2);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       2
     );

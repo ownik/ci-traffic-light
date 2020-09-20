@@ -11,6 +11,10 @@ jest.mock('axios', () => ({
 }));
 
 describe('App', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('Basic App tests', () => {
     let wrapper;
 
@@ -54,56 +58,100 @@ describe('App', () => {
         );
       }
     );
+
+    test('manualy call fetch settings with mocked axios', async () => {
+      const settings = { test: true, string: 'some string' };
+
+      mockAxios.get.mockImplementationOnce(() => Promise.resolve(settings));
+
+      const wrapper = shallow(<App />, { disableLifecycleMethods: true });
+
+      expect(mockAxios.get).toHaveBeenCalledTimes(0);
+
+      await expect(wrapper.instance().fetchSettings()).resolves.toEqual(
+        settings
+      );
+
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/settings.json');
+    });
+
+    test('manualy call fetch state with mocked axios', async () => {
+      const state = {
+        items: ['Build 1', 'Build 2'],
+        status: 'fail',
+        lastChangedStatusTime: Date.now(),
+      };
+
+      mockAxios.get.mockImplementationOnce(() => Promise.resolve(state));
+
+      const wrapper = shallow(<App />, { disableLifecycleMethods: true });
+
+      expect(mockAxios.get).toHaveBeenCalledTimes(0);
+
+      await expect(wrapper.instance().fetchState()).resolves.toEqual(state);
+
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+
+      expect(mockAxios.get).toHaveBeenCalledWith('/state.json');
+    });
   });
 
   describe('Settings read', () => {
-    let fetchSettingsMock;
     let updateStateMock;
     let app;
 
     beforeEach(() => {
       jest.useFakeTimers();
       mockAxios.get.mockClear();
-      fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
+      App.prototype.fetchSettings = jest.fn();
+      App.prototype.fetchState = jest.fn();
       updateStateMock = jest.spyOn(App.prototype, 'updateState');
     });
 
     afterEach(() => {
       if (app) app.unmount();
-      fetchSettingsMock.mockRestore();
+      App.prototype.fetchSettings.mockRestore();
+      App.prototype.fetchState.mockRestore();
       updateStateMock.mockRestore();
       jest.useRealTimers();
     });
 
     test('should call fetchSettings, connect, setInterval and updateState during componentDidMount \
     and call clearInterval in componentWillUnmount', (done) => {
+      const lastChangedStatusTime = Date.now();
       const mockSettings = {
         serverUrl: 'http://localhost:8080',
         auth: { user: 'root', password: '123456' },
         branch: 'default',
         buildTypes: ['Build Type 1', 'Build Type 2', 'Build Type 3'],
-        lastChangedStatusTime: Date.now(),
+        lastChangedStatusTime,
       };
-
       const checkStateResult = {
         items: ['Build Type 1'],
         status: 'success',
       };
-      mockAxios.get.mockResolvedValueOnce({ data: checkStateResult });
-      fetchSettingsMock = fetchSettingsMock.mockResolvedValueOnce({
+      App.prototype.fetchState.mockResolvedValueOnce({
+        data: { ...checkStateResult, lastChangedStatusTime },
+      });
+      App.prototype.fetchSettings.mockResolvedValueOnce({
         data: mockSettings,
       });
 
       app = shallow(<App />);
 
       setImmediate(() => {
-        expect(fetchSettingsMock).toHaveBeenCalledTimes(1);
+        expect(App.prototype.fetchSettings).toHaveBeenCalledTimes(1);
+        expect(App.prototype.fetchState).toHaveBeenCalledTimes(1);
         expect(updateStateMock).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledWith('/state.json');
         expect(app.state()).toHaveProperty(
           'checkStateResult',
           checkStateResult
+        );
+        expect(app.state()).toHaveProperty(
+          'lastChangedStatusTime',
+          lastChangedStatusTime
         );
         expect(setInterval).toHaveBeenCalledTimes(1);
         app.unmount();
@@ -118,8 +166,12 @@ describe('App', () => {
         lastChangedStatusTime: Date.now(),
       };
 
-      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+      App.prototype.fetchSettings.mockResolvedValue({
         data: settings,
+      });
+
+      App.prototype.fetchState.mockResolvedValue({
+        data: { lastChangedStatusTime: settings.lastChangedStatusTime },
       });
 
       app = shallow(<App />);
@@ -142,8 +194,12 @@ describe('App', () => {
         lastChangedStatusTime: Date.now(),
       };
 
-      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+      App.prototype.fetchSettings.mockResolvedValue({
         data: settings,
+      });
+
+      App.prototype.fetchState.mockResolvedValue({
+        data: { lastChangedStatusTime: settings.lastChangedStatusTime },
       });
 
       app = shallow(<App />);
@@ -163,9 +219,14 @@ describe('App', () => {
     test('read settings in componentDidMount', (done) => {
       const settings = { test: true, string: 'some string' };
 
-      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+      App.prototype.fetchSettings.mockResolvedValue({
         data: settings,
       });
+
+      App.prototype.fetchState.mockResolvedValue({
+        data: { lastChangedStatusTime: settings.lastChangedStatusTime },
+      });
+
       const wrapper = shallow(<App />);
 
       setImmediate(() => {
@@ -173,37 +234,22 @@ describe('App', () => {
         done();
       });
     });
-
-    test('manualy call fetch settings with mocked axios', async () => {
-      const settings = { test: true, string: 'some string' };
-
-      mockAxios.get.mockImplementationOnce(() => Promise.resolve(settings));
-
-      const wrapper = shallow(<App />, { disableLifecycleMethods: true });
-
-      await expect(wrapper.instance().fetchSettings()).resolves.toEqual(
-        settings
-      );
-
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-
-      expect(mockAxios.get).toHaveBeenCalledWith('/settings.json');
-    });
   });
 
   describe('TimerLabel integration', () => {
     let wrapper;
     let timerLabel;
     let timerEventMock;
-    let fetchSettingsMock;
 
     beforeAll(() => {
       jest.useFakeTimers();
       Date.now = jest
         .fn()
         .mockReturnValue(new Date(2020, 4, 8, 20, 10, 30).getTime());
-      fetchSettingsMock = jest.spyOn(App.prototype, 'fetchSettings');
-      fetchSettingsMock = fetchSettingsMock.mockResolvedValue({
+      App.prototype.fetchSettings = jest.fn().mockResolvedValue({
+        data: { lastChangedStatusTime: Date.now() },
+      });
+      App.prototype.fetchState = jest.fn().mockResolvedValue({
         data: { lastChangedStatusTime: Date.now() },
       });
       wrapper = mount(<App />);
@@ -212,7 +258,8 @@ describe('App', () => {
 
     afterAll(() => {
       timerEventMock.mockRestore();
-      fetchSettingsMock.mockRestore();
+      App.prototype.fetchSettings.mockRestore();
+      App.prototype.fetchState.mockRestore();
       Date.now.mockRestore();
       jest.useRealTimers();
       wrapper.unmount();

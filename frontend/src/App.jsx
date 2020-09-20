@@ -33,9 +33,17 @@ class App extends Component {
     return axios.get('/settings.json');
   }
 
+  fetchState() {
+    return axios.get('/state.json');
+  }
+
   updateState() {
-    axios.get('/state.json').then((responce) => {
-      this.setState({ checkStateResult: responce.data });
+    this.fetchState().then((responce) => {
+      const { items, status, lastChangedStatusTime } = responce.data;
+      this.setState({
+        checkStateResult: { items, status },
+        lastChangedStatusTime,
+      });
     });
   }
 
