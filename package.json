@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "description": "Continuous integration system state indicator (also knowns as Traffic light)",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "test": "jest",
+    "test:frontend": "jest --projects frontend",
+    "test:backend": "jest --projects frontend"
+  },
   "author": "Nikita Ostrenkov",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "jest": "^26.4.2"
+  },
   "dependencies": {}
 }
