@@ -6,8 +6,10 @@
   "scripts": {
     "test": "jest",
     "test:frontend": "jest --projects frontend",
-    "test:backend": "jest --projects frontend",
+    "test:backend": "jest --projects backend",
     "codecov": "jest --ci --coverage && codecov",
+    "codecov:frontend": "jest --projects frontend --ci --coverage",
+    "codecov:backend": "jest --projects backend --ci --coverage",
     "start": "cd frontend && npm run-script build && cd ../backend && npm run-script start"
   },
   "author": "Nikita Ostrenkov",
