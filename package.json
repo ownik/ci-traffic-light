@@ -8,7 +8,7 @@
     "test:frontend": "jest --projects frontend",
     "test:backend": "jest --projects frontend",
     "codecov": "jest --ci --coverage && codecov",
-    "start": "cd frontend && npm run-script build"
+    "start": "cd frontend && npm run-script build && cd ../backend && npm run-script start"
   },
   "author": "Nikita Ostrenkov",
   "license": "MIT",
