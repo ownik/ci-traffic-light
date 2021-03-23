@@ -9,20 +9,20 @@
     "coverage": "jest --collect-coverage"
   },
   "dependencies": {
-    "axios": "^0.20.0",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "morgan": "~1.9.1"
+    "axios": "^0.21.1",
+    "cookie-parser": "~1.4.5",
+    "debug": "~4.3.1",
+    "express": "~4.17.1",
+    "morgan": "~1.10.0"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
     "eslint-config-recommended": "^4.1.0",
-    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-jest": "^24.3.2",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "jest": "^26.4.2",
-    "supertest": "^4.0.2"
+    "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^26.6.3",
+    "supertest": "^6.1.3"
   }
 }
