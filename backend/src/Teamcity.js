@@ -1,9 +1,9 @@
-const axios = require("axios");
+const axios = require('axios');
 
 const STATUSES = {
-  Success: "SUCCESS",
-  Unknown: "UNKNOWN",
-  FAILURE: "FAILURE",
+  Success: 'SUCCESS',
+  Unknown: 'UNKNOWN',
+  FAILURE: 'FAILURE',
 };
 
 class Investigations {
@@ -40,7 +40,7 @@ class Teamcity {
   httpGet(url) {
     return axios.get(url, {
       headers: {
-        Accept: "application/json",
+        Accept: 'application/json',
       },
       auth: this.auth,
     });
@@ -95,9 +95,8 @@ class Teamcity {
             return {
               id: buildType,
               displayName: buildType,
-              investigators: investigations.fetchInvestigationUserForBuildType(
-                buildType
-              ),
+              investigators:
+                investigations.fetchInvestigationUserForBuildType(buildType),
               running: runningSuccess != null,
             };
           }
@@ -107,10 +106,10 @@ class Teamcity {
       )
     ).filter((item) => item != null);
 
-    let status = "success";
+    let status = 'success';
 
     if (items.length > 0) {
-      status = "fail";
+      status = 'fail';
     }
 
     return { status, items };

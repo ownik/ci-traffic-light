@@ -1,15 +1,15 @@
-const request = require("supertest");
-const SettingsStorage = require("../src/SettingsStorage");
-const StateReciever = require("../src/StateReciever");
+const request = require('supertest');
+const SettingsStorage = require('../src/SettingsStorage');
+const StateReciever = require('../src/StateReciever');
 
-jest.mock("../src/SettingsStorage");
-jest.mock("../src/StateReciever");
+jest.mock('../src/SettingsStorage');
+jest.mock('../src/StateReciever');
 
 const mockSettings = {
-  serverUrl: "http://localhost:8112",
-  auth: { username: "root", password: "12345" },
-  branch: "stable",
-  buildTypes: ["Build 1", "Build 2", "Build 3"],
+  serverUrl: 'http://localhost:8112',
+  auth: { username: 'root', password: '12345' },
+  branch: 'stable',
+  buildTypes: ['Build 1', 'Build 2', 'Build 3'],
   updateStateInterval: 9999,
   lastChangedStatusTime: new Date(2020, 9, 20, 16, 55, 11).getTime(),
 };
@@ -17,23 +17,23 @@ const mockSettings = {
 const mockState = {
   items: [
     {
-      id: "Build 1",
-      displayName: "Build 1",
-      investigators: ["user1"],
+      id: 'Build 1',
+      displayName: 'Build 1',
+      investigators: ['user1'],
       running: false,
     },
     {
-      id: "Build 2",
-      displayName: "Build 2",
-      investigators: ["user1"],
+      id: 'Build 2',
+      displayName: 'Build 2',
+      investigators: ['user1'],
       running: false,
     },
   ],
-  status: "fail",
+  status: 'fail',
   lastChangedStatusTime: new Date(2020, 9, 20, 16, 55, 11).getTime(),
 };
 
-describe("App", () => {
+describe('App', () => {
   beforeEach(() => {
     jest.useFakeTimers('legacy');
   });
@@ -43,19 +43,19 @@ describe("App", () => {
     jest.useRealTimers();
   });
 
-  test("/settings.json should return settings from SettingsStorage", async () => {
+  test('/settings.json should return settings from SettingsStorage', async () => {
     SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
 
     expect(SettingsStorage).toHaveBeenCalledTimes(0);
     expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(0);
     expect(StateReciever).toHaveBeenCalledTimes(0);
 
-    const app = require("../app");
+    const app = require('../app');
 
     expect(StateReciever).toHaveBeenCalledTimes(1);
     expect(StateReciever).toHaveBeenCalledWith(expect.any(SettingsStorage));
 
-    const responce = await request(app).get("/settings.json");
+    const responce = await request(app).get('/settings.json');
 
     expect(SettingsStorage).toHaveBeenCalledTimes(1);
     expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(1);
@@ -64,11 +64,11 @@ describe("App", () => {
     expect(responce.body).toEqual(mockSettings);
   });
 
-  test("/state.json should return state from Teamcity", async () => {
+  test('/state.json should return state from Teamcity', async () => {
     SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
     StateReciever.prototype.state.mockReturnValue(mockState);
-    const app = require("../app");
-    const responce = await request(app).get("/state.json");
+    const app = require('../app');
+    const responce = await request(app).get('/state.json');
 
     expect(responce.body).toEqual({
       ...mockState,

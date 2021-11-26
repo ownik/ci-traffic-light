@@ -1,4 +1,4 @@
-const { Teamcity } = require("./Teamcity");
+const { Teamcity } = require('./Teamcity');
 
 class StateReciever {
   constructor(settingsStorage) {
@@ -18,8 +18,8 @@ class StateReciever {
   state() {
     return {
       ...this._state,
-      lastChangedStatusTime: this._settingsStorage.settings()
-        .lastChangedStatusTime,
+      lastChangedStatusTime:
+        this._settingsStorage.settings().lastChangedStatusTime,
     };
   }
 
