@@ -32,7 +32,7 @@ describe("StateReciever", () => {
   let stateReciever;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    jest.useFakeTimers('legacy');
     updateStateSpy.mockClear();
     Date.now = jest
       .fn()

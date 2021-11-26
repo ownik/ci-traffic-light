@@ -35,7 +35,7 @@ const mockState = {
 
 describe("App", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    jest.useFakeTimers('legacy');
   });
 
   afterEach(() => {

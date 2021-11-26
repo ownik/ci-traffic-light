@@ -3,6 +3,8 @@ import { shallow, mount } from 'enzyme';
 import mockAxios from 'axios';
 import App from '../src/App';
 
+import { setImmediate } from 'timers';
+
 import LightIndicatorScreen from '../src/LightIndicatorScreen';
 import TimerLabel from '../src/TimerLabel';
 
@@ -103,7 +105,7 @@ describe('App', () => {
     let app;
 
     beforeEach(() => {
-      jest.useFakeTimers();
+      jest.useFakeTimers("legacy");
       mockAxios.get.mockClear();
       App.prototype.fetchSettings = jest.fn();
       App.prototype.fetchState = jest.fn();
@@ -242,7 +244,7 @@ describe('App', () => {
     let timerEventMock;
 
     beforeAll(() => {
-      jest.useFakeTimers();
+      jest.useFakeTimers('legacy');
       Date.now = jest
         .fn()
         .mockReturnValue(new Date(2020, 4, 8, 20, 10, 30).getTime());
