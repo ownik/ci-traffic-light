@@ -4,16 +4,16 @@
  * Module dependencies.
  */
 
-const app = require("../app");
-const http = require("http");
-const open = require("open");
+const app = require('../app');
+const http = require('http');
+const open = require('open');
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || "3000");
-app.set("port", port);
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
 
 /**
  * Create HTTP server.
@@ -31,21 +31,21 @@ server.listen(port);
  * Event listener for HTTP server "error" event.
  */
 
-server.on("error", (error) => {
-  if (error.syscall !== "listen") {
+server.on('error', (error) => {
+  if (error.syscall !== 'listen') {
     throw error;
   }
 
-  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case "EACCES":
-      console.error(bind + " requires elevated privileges");
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
-    case "EADDRINUSE":
-      console.error(bind + " is already in use");
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
       process.exit(1);
       break;
     default:
@@ -56,11 +56,11 @@ server.on("error", (error) => {
 /**
  * Event listener for HTTP server "listening" event.
  */
-server.on("listening", () => {
+server.on('listening', () => {
   var addr = server.address();
-  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
-  console.log("Running on port" + bind);
-  open("http://localhost:" + port);
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  console.log('Running on port' + bind);
+  open('http://localhost:' + port);
 });
 
 /**

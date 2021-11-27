@@ -11,12 +11,18 @@
     "codecov:frontend": "jest --projects frontend --ci --coverage",
     "codecov:backend": "jest --projects backend --ci --coverage",
     "start": "cd frontend && npm run-script build && cd ../backend && npm run-script start",
-    "postinstall": "cd frontend && npm install && cd ../backend && npm install"
+    "postinstall": "cd frontend && npm install && cd ../backend && npm install",
+    "buildbinary": "cd frontend && npm run-script build && cd .. && pkg backend/bin/www -c package.json"
   },
   "author": "Nikita Ostrenkov",
   "license": "MIT",
   "devDependencies": {
     "jest": "^27.3.1"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "pkg": {
+    "scripts": "backend/src/*",
+    "assets": "public/*",
+    "targets": [ "node16-win-x64" ]
+  }
 }
