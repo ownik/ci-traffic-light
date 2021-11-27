@@ -4,7 +4,7 @@ class SettingsStorage {
   constructor(file) {
     this._file = file;
     this._settings = JSON.parse(fs.readFileSync(this._file));
-    if (!this._settings.hasOwnProperty('lastChangedStatusTime')) {
+    if (!('lastChangedStatusTime' in this._settings)) {
       this.updateLastChangedStatusTime();
     }
   }
