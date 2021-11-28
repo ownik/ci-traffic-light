@@ -1,34 +1,13 @@
 const axios = require('axios');
+const Investigations = require('./Investigations');
+const ProjectStructure = require('./ProjectsStructure');
+const ProjectsStructure = require('./ProjectsStructure');
 
 const STATUSES = {
   Success: 'SUCCESS',
   Unknown: 'UNKNOWN',
   FAILURE: 'FAILURE',
 };
-
-class Investigations {
-  constructor() {
-    this.table = {};
-  }
-
-  addInvestigation(userName, buildTypes) {
-    for (const buildType of buildTypes) {
-      /*if (buildType in this.table) {
-        this.table[buildType].concat([userName]);
-      } else {*/
-      this.table[buildType] = [userName];
-      //}
-    }
-    return this;
-  }
-
-  fetchInvestigationUserForBuildType(buildType) {
-    if (buildType in this.table) {
-      return this.table[buildType];
-    }
-    return [];
-  }
-}
 
 class Teamcity {
   constructor(settings) {
@@ -51,7 +30,7 @@ class Teamcity {
       `${this.serverUrl}/app/rest/latest/investigations`
     );
 
-    let investigations = new Investigations();
+    const investigations = new Investigations();
     if (response.data.investigation) {
       for (let i of response.data.investigation) {
         const buildTypes = i.scope.buildTypes.buildType.map(
@@ -61,6 +40,36 @@ class Teamcity {
       }
     }
     return investigations;
+  }
+
+  async fetchProjectsStructure() {
+    const projectStructure = new ProjectStructure();
+    let response = await this.httpGet(
+      `${this.serverUrl}/app/rest/latest/projects`
+    );
+    if (response.data.project) {
+      for (let project of response.data.project) {
+        if (project.id === '_Root') continue;
+        projectStructure.addProject(
+          project.id,
+          project.name,
+          project.parentProjectId === '_Root' ? null : project.parentProjectId
+        );
+      }
+    }
+    response = await this.httpGet(
+      `${this.serverUrl}/app/rest/latest/buildTypes`
+    );
+    if (response.data.buildType) {
+      for (let buildType of response.data.buildType) {
+        projectStructure.addBuild(
+          buildType.id,
+          buildType.name,
+          buildType.projectId
+        );
+      }
+    }
+    return projectStructure;
   }
 
   async isFinishedBuildFail(buildTypeId) {
@@ -116,7 +125,4 @@ class Teamcity {
   }
 }
 
-module.exports = {
-  Investigations,
-  Teamcity,
-};
+module.exports.Teamcity = Teamcity;

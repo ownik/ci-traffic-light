@@ -103,8 +103,51 @@ const makeInvestigationJson = (arr) => {
   };
 };
 
+const rootProject = {
+  id: '_Root',
+  name: '<Root project>',
+  description: 'Contains all other projects',
+  href: '/app/rest/projects/id:_Root',
+  webUrl: 'http://127.0.0.1:8111/project.html?projectId=_Root',
+};
+
+const makeAllProjectsJson = (arr) => {
+  const allProject = [rootProject].concat(arr).map((item) => ({
+    id: item.id,
+    name: item.name,
+    parentProjectId: item.parent ? item.parent : rootProject.id,
+    href: `/app/rest/projects/id:${item.id}`,
+    webUrl: `http://127.0.0.1:8111/project.html?projectId=${item.id}`,
+  }));
+
+  return {
+    count: allProject.length,
+    href: '/app/rest/projects',
+    project: allProject,
+  };
+};
+
+const makeAllBuildTypesJson = (arr) => {
+  const allBuildTypes = arr.map((item) => ({
+    id: item.id,
+    name: item.name,
+    projectName: item.parent ? item.parent : rootProject.id,
+    projectId: item.parent ? item.parent : rootProject,
+    href: `/app/rest/buildTypes/id:${item.id}`,
+    webUrl: `http://127.0.0.1:8111/viewType.html?buildTypeId=${item.id}`,
+  }));
+
+  return {
+    count: allBuildTypes.length,
+    href: '/app/rest/buildTypes',
+    buildType: allBuildTypes,
+  };
+};
+
 module.exports = {
   makeBuildsJson,
   makeRunningBuildsJson,
   makeInvestigationJson,
+  makeAllProjectsJson,
+  makeAllBuildTypesJson,
 };

@@ -1,9 +1,14 @@
 const mockAxios = require('axios');
-const { Teamcity, Investigations } = require('../src/Teamcity');
+const { Teamcity } = require('../src/Teamcity');
+const Investigations = require('../src/Investigations');
+const ProjectsStructure = require('../src/ProjectsStructure');
+
 const {
   makeBuildsJson,
   makeRunningBuildsJson,
   makeInvestigationJson,
+  makeAllProjectsJson,
+  makeAllBuildTypesJson,
 } = require('./teamcityTestUtils');
 
 jest.mock('axios', () => ({
@@ -163,6 +168,76 @@ describe('Teamcity', () => {
         .addInvestigation('user1', ['Build 1', 'Build 2'])
         .addInvestigation('user2', ['Build 3'])
     );
+  });
+
+  describe('fetchProjectStructure', () => {
+    test('simple-structure', async () => {
+      const expectedStructure = new ProjectsStructure()
+        .addProject('Windows', 'Windows Project Name', null)
+        .addProject('WindowsSubProject1', 'Windows SubProject Name', 'Windows')
+        .addBuild('WindowsSubProject1Build1', 'Build 1', 'WindowsSubProject1')
+        .addBuild('WindowsSubProject1Build2', 'Build 2', 'WindowsSubProject1')
+        .addBuild('WindowsSubProject1Build3', 'Build 3', 'WindowsSubProject1')
+        .addProject('Linux', 'Linux Project Name', null)
+        .addBuild('LinuxBuild1', 'Build 1', 'Linux')
+        .addBuild('LinuxBuild2', 'Build 2', 'Linux')
+        .addBuild('LinuxBuild3', 'Build 3', 'Linux');
+
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeAllProjectsJson([
+            { id: 'Windows', name: 'Windows Project Name' },
+            {
+              id: 'WindowsSubProject1',
+              name: 'Windows SubProject Name',
+              parent: 'Windows',
+            },
+            { id: 'Linux', name: 'Linux Project Name' },
+          ]),
+        })
+      );
+
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeAllBuildTypesJson([
+            {
+              id: 'WindowsSubProject1Build1',
+              name: 'Build 1',
+              parent: 'WindowsSubProject1',
+            },
+            {
+              id: 'WindowsSubProject1Build2',
+              name: 'Build 2',
+              parent: 'WindowsSubProject1',
+            },
+            {
+              id: 'WindowsSubProject1Build3',
+              name: 'Build 3',
+              parent: 'WindowsSubProject1',
+            },
+            {
+              id: 'LinuxBuild1',
+              name: 'Build 1',
+              parent: 'Linux',
+            },
+            {
+              id: 'LinuxBuild2',
+              name: 'Build 2',
+              parent: 'Linux',
+            },
+            {
+              id: 'LinuxBuild3',
+              name: 'Build 3',
+              parent: 'Linux',
+            },
+          ]),
+        })
+      );
+
+      expect(await teamcity.fetchProjectsStructure()).toEqual(
+        expectedStructure
+      );
+    });
   });
 
   describe('checkState', () => {
