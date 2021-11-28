@@ -1,27 +1,27 @@
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const SettingsStorage = require("./src/SettingsStorage");
-const StateReciever = require("./src/StateReciever");
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const SettingsStorage = require('./src/SettingsStorage');
+const StateReciever = require('./src/StateReciever');
 
-const settingsStorage = new SettingsStorage("./settings.json");
+const settingsStorage = new SettingsStorage('./settings.json');
 const stateReciever = new StateReciever(settingsStorage);
 
 const app = express();
 
-app.use(logger("dev"));
+app.use(logger('dev'));
 app.use(express.json());
-app.set("json spaces", 2);
+app.set('json spaces', 2);
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, '../public')));
 
-app.get("/settings.json", (req, res) => {
+app.get('/settings.json', (req, res) => {
   res.json(settingsStorage.settings());
 });
 
-app.get("/state.json", async (req, res) => {
+app.get('/state.json', async (req, res) => {
   res.json(stateReciever.state());
 });
 
