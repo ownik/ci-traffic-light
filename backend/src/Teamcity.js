@@ -93,6 +93,7 @@ class Teamcity {
 
   async checkState(buildTypes) {
     const investigations = await this.fetchAllInvestigation();
+    const projectsStructure = await this.fetchProjectsStructure();
 
     const items = (
       await Promise.all(
@@ -103,7 +104,7 @@ class Teamcity {
           if (finishedFailed || (runningSuccess != null && !runningSuccess)) {
             return {
               id: buildType,
-              displayName: buildType,
+              displayName: projectsStructure.getName(buildType),
               investigators:
                 investigations.fetchInvestigationUserForBuildType(buildType),
               running: runningSuccess != null,

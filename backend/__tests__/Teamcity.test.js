@@ -244,30 +244,40 @@ describe('Teamcity', () => {
     let fetchAllInvestigationMock;
     let isFinishedBuildFailMock;
     let isRunningBuildSuccessMock;
+    let fetchProjectsStructureMock;
 
     beforeEach(() => {
       fetchAllInvestigationMock = jest.spyOn(teamcity, 'fetchAllInvestigation');
       isFinishedBuildFailMock = jest.spyOn(teamcity, 'isFinishedBuildFail');
       isRunningBuildSuccessMock = jest.spyOn(teamcity, 'isRunningBuildSuccess');
+      fetchProjectsStructureMock = jest.spyOn(
+        teamcity,
+        'fetchProjectsStructure'
+      );
     });
 
     afterEach(() => {
       fetchAllInvestigationMock.mockRestore();
       isFinishedBuildFailMock.mockRestore();
       isRunningBuildSuccessMock.mockRestore();
+      fetchProjectsStructureMock.mockRestore();
     });
+
+    const structure = new ProjectsStructure()
+      .addBuild('Build 1', 'Build 1 Name', null)
+      .addBuild('Build 2', 'Build 2 Name', null);
 
     const twoFailedBuildsExpected = {
       items: [
         {
           id: 'Build 1',
-          displayName: 'Build 1',
+          displayName: 'Build 1 Name',
           investigators: [],
           running: false,
         },
         {
           id: 'Build 2',
-          displayName: 'Build 2',
+          displayName: 'Build 2 Name',
           investigators: [],
           running: false,
         },
@@ -279,13 +289,13 @@ describe('Teamcity', () => {
       items: [
         {
           id: 'Build 1',
-          displayName: 'Build 1',
+          displayName: 'Build 1 Name',
           investigators: ['user1'],
           running: false,
         },
         {
           id: 'Build 2',
-          displayName: 'Build 2',
+          displayName: 'Build 2 Name',
           investigators: ['user1'],
           running: false,
         },
@@ -296,10 +306,10 @@ describe('Teamcity', () => {
     test.each`
       text                                          | buildTypes                | investigations                                                            | failedBuilds              | runningSuccessBuilds    | expected
       ${'one build - no failed'}                    | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{}}                   | ${{ items: [], status: 'success' }}
-      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                   | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: false }], status: 'fail' }}
-      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': false }} | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: true }], status: 'fail' }}
+      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                   | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', investigators: [], running: false }], status: 'fail' }}
+      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': false }} | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', investigators: [], running: true }], status: 'fail' }}
       ${'one build - running success'}              | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': true }}  | ${{ items: [], status: 'success' }}
-      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${{ items: [{ id: 'Build 1', displayName: 'Build 1', investigators: [], running: true }], status: 'fail' }}
+      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': true }}  | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', investigators: [], running: true }], status: 'fail' }}
       ${'two build - failed'}                       | ${['Build 1', 'Build 2']} | ${new Investigations()}                                                   | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsExpected}
       ${'two build - failed one same investigator'} | ${['Build 1', 'Build 2']} | ${new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])} | ${['Build 1', 'Build 2']} | ${{}}                   | ${twoFailedBuildsOneSameInvestigatorExpected}
     `(
@@ -324,6 +334,9 @@ describe('Teamcity', () => {
               : null
           )
         );
+        fetchProjectsStructureMock.mockImplementation(() =>
+          Promise.resolve(structure)
+        );
 
         expect(await teamcity.checkState(buildTypes)).toEqual(expected);
       }
@@ -344,6 +357,9 @@ describe('Teamcity', () => {
         );
         isRunningBuildSuccessMock.mockImplementationOnce(() =>
           Promise.resolve(null)
+        );
+        fetchProjectsStructureMock.mockImplementationOnce(() =>
+          Promise.resolve(structure)
         );
 
         await teamcity.checkState(buildTypes);
@@ -368,6 +384,8 @@ describe('Teamcity', () => {
             buildType
           );
         }
+        expect(fetchProjectsStructureMock).toHaveBeenCalledTimes(1);
+        expect(fetchProjectsStructureMock).toHaveBeenCalledWith();
       }
     );
   });
