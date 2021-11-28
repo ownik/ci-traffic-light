@@ -1,7 +1,6 @@
 const StateReciever = require('../src/StateReciever');
 const SettingsStorage = require('../src/SettingsStorage');
 const { Teamcity } = require('../src/Teamcity');
-const fs = require('fs');
 
 jest.mock('../src/Teamcity');
 jest.mock('../src/SettingsStorage');
