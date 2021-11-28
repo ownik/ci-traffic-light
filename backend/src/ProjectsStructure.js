@@ -22,6 +22,13 @@ class ProjectStructure {
     this._idToNames[buildId] = buildName;
     return this;
   }
+
+  getName(id) {
+    if (id in this._idToNames) {
+      return this._idToNames[id];
+    }
+    return id;
+  }
 }
 
 module.exports = ProjectStructure;
