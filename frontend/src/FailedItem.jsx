@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ProgressSpinner from './ProgressSpinner';
-import './ProgressSpinner.css';
 
 const FailedItem = ({ displayName, running }) => (
   <li>

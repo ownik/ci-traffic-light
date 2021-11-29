@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const ProgressSpinner = ({ visible }) => (
+import './ProgressSpinner.css';
+
+const ProgressSpinner = () => (
   <div className="lds-roller">
     <div></div>
     <div></div>
