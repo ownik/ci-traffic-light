@@ -17,7 +17,6 @@ jobs:
           node-version: '16'
       - name: Install root dependencies
         run: npm ci
-        working-directory: ./
       - name: Install backend dependencies
         run: npm ci
         working-directory: backend
@@ -26,9 +25,20 @@ jobs:
         working-directory: frontend
       - name: Building release
         run: npm run buildbinary
-        working-directory: ./
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Adding tagname to binaries
+        run: |
+          mv ci-state-indicator-win.exe ci-state-indicator-win-${{ steps.get_version.outputs.VERSION }}.exe
+          mv ci-state-indicator-linux ci-state-indicator-linux-${{ steps.get_version.outputs.VERSION }} 
+          mv ci-state-indicator-macos ci-state-indicator-macos-${{ steps.get_version.outputs.VERSION }}
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ci-state-indicator.exe
+          files: |
+            ci-state-indicator-win-${{ steps.get_version.outputs.VERSION }}.exe
+            ci-state-indicator-linux-${{ steps.get_version.outputs.VERSION }}
+            ci-state-indicator-macos-${{ steps.get_version.outputs.VERSION }}
           draft: true
+          body_path: CHANGELOG.md
