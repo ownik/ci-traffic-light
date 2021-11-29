@@ -29,9 +29,7 @@ class StateReciever {
     return this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
-        if (state.status != this._state.status) {
-          this._settingsStorage.updateLastChangedStatusTime();
-        }
+        this._settingsStorage.updateLastChangedStatusTime(state.status);
         this._state = state;
       });
   }

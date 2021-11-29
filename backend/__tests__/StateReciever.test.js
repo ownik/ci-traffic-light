@@ -172,12 +172,20 @@ describe('StateReciever', () => {
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
+    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
+      'success'
+    );
+    settingsStorage.updateLastChangedStatusTime.mockClear();
 
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
+    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
+      'success'
+    );
+    settingsStorage.updateLastChangedStatusTime.mockClear();
 
     const state2 = { item: ['Build 1'], status: 'fail' };
     const nowTime2 = new Date(2020, 9, 20, 16, 55, 11).getTime();
@@ -186,7 +194,10 @@ describe('StateReciever', () => {
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
-      2
+      1
+    );
+    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
+      'fail'
     );
   });
 });

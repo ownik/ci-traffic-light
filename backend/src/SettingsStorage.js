@@ -5,7 +5,7 @@ class SettingsStorage {
     this._file = file;
     this._settings = JSON.parse(fs.readFileSync(this._file));
     if (!('lastChangedStatusTime' in this._settings)) {
-      this.updateLastChangedStatusTime();
+      this.updateLastChangedStatusTime('');
     }
   }
 
@@ -13,9 +13,12 @@ class SettingsStorage {
     return this._settings;
   }
 
-  updateLastChangedStatusTime() {
-    this._settings.lastChangedStatusTime = Date.now();
-    fs.writeFileSync(this._file, JSON.stringify(this._settings, null, 2));
+  updateLastChangedStatusTime(status) {
+    if (this._settings.lastStatus != status) {
+      this._settings.lastChangedStatusTime = Date.now();
+      this._settings.lastStatus = status;
+      fs.writeFileSync(this._file, JSON.stringify(this._settings, null, 2));
+    }
   }
 }
 

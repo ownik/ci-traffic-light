@@ -31,11 +31,13 @@ describe('Settings', () => {
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(0);
     const settingsStorage = new SettingsStorage('./settings.json');
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(1);
+    expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledWith('');
     expect(fs.readFileSync).toHaveBeenCalledTimes(1);
     expect(fs.readFileSync).toHaveBeenCalledWith('./settings.json');
     expect(settingsStorage.settings()).toEqual({
       ...mockSettings,
       lastChangedStatusTime: new Date(2020, 9, 19, 20, 13, 45).getTime(),
+      lastStatus: '',
     });
   });
 
@@ -47,6 +49,7 @@ describe('Settings', () => {
       buildTypes: ['Build 1', 'Build 2', 'Build 3'],
       updateStateInterval: 9999,
       lastChangedStatusTime: new Date(2020, 9, 20, 12, 45, 0).getTime(),
+      lastStatus: 'success',
     };
     Date.now.mockReturnValue(new Date(1993, 5, 7, 2, 0, 0).getTime());
     fs.readFileSync.mockReturnValue(JSON.stringify(mockSettings, null, 2));
@@ -85,16 +88,18 @@ describe('Settings', () => {
         {
           ...mockSettings,
           lastChangedStatusTime: newTime.getTime(),
+          lastStatus: '',
         },
         null,
         2
       )
     );
 
-    settingsStorage.updateLastChangedStatusTime(newTime.getTime());
+    settingsStorage.updateLastChangedStatusTime('success');
     expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
       newTime.getTime()
     );
+    expect(settingsStorage.settings().lastStatus).toStrictEqual('success');
 
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(2);
     expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
@@ -104,6 +109,7 @@ describe('Settings', () => {
         {
           ...mockSettings,
           lastChangedStatusTime: newTime.getTime(),
+          lastStatus: 'success',
         },
         null,
         2
@@ -119,15 +125,17 @@ describe('Settings', () => {
       buildTypes: ['Build 1', 'Build 2', 'Build 3'],
       updateStateInterval: 9999,
       lastChangedStatusTime: new Date(2020, 9, 19, 19, 28, 35),
+      lastStatus: 'success',
     };
     fs.readFileSync.mockReturnValue(JSON.stringify(mockSettings));
     const settingsStorage = new SettingsStorage('settings.json');
     const newTime = new Date(2020, 9, 20, 21, 18, 33);
     Date.now.mockReturnValue(newTime.getTime());
-    settingsStorage.updateLastChangedStatusTime(newTime.getTime());
+    settingsStorage.updateLastChangedStatusTime('fail');
     expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
       newTime.getTime()
     );
+    expect(settingsStorage.settings().lastStatus).toStrictEqual('fail');
 
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -136,10 +144,34 @@ describe('Settings', () => {
         {
           ...mockSettings,
           lastChangedStatusTime: newTime.getTime(),
+          lastStatus: 'fail',
         },
         null,
         2
       )
     );
+  });
+
+  test('updateLastChangedStatusTime not updated when status not changed', () => {
+    const mockSettings = {
+      serverUrl: 'http://localhost:8112',
+      auth: { username: 'root', password: '12345' },
+      branch: 'stable',
+      buildTypes: ['Build 1', 'Build 2', 'Build 3'],
+      updateStateInterval: 9999,
+      lastChangedStatusTime: new Date(2020, 9, 19, 19, 28, 35).getTime(),
+      lastStatus: 'success',
+    };
+    fs.readFileSync.mockReturnValue(JSON.stringify(mockSettings));
+    const settingsStorage = new SettingsStorage('settings.json');
+    const newTime = new Date(2020, 9, 20, 21, 18, 33);
+    Date.now.mockReturnValue(newTime.getTime());
+    settingsStorage.updateLastChangedStatusTime('success');
+    expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
+      mockSettings.lastChangedStatusTime
+    );
+    expect(settingsStorage.settings().lastStatus).toStrictEqual('success');
+
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(0);
   });
 });
