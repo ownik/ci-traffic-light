@@ -14,28 +14,22 @@ describe('LightIndicatorScreen', () => {
     expect(wrapper.type()).toBe('div');
   });
 
-  const colors = { fail: 'red', success: 'green' };
-
   test('check colors props - default status', () => {
-    const wrapper = shallow(<LightIndicatorScreen color={colors} />);
+    const wrapper = shallow(<LightIndicatorScreen />);
     expect(wrapper.get(0).props.style).toEqual({
       background: 'linear-gradient(#FF416C, #FF4B2B)',
     });
   });
 
   test('check colors props - fail status', () => {
-    const wrapper = shallow(
-      <LightIndicatorScreen color={colors} status="fail" />
-    );
+    const wrapper = shallow(<LightIndicatorScreen status="fail" />);
     expect(wrapper.get(0).props.style).toEqual({
       background: 'linear-gradient(#FF416C, #FF4B2B)',
     });
   });
 
   test('check colors props - success status', () => {
-    const wrapper = shallow(
-      <LightIndicatorScreen color={colors} status="success" />
-    );
+    const wrapper = shallow(<LightIndicatorScreen status="success" />);
     expect(wrapper.get(0).props.style).toEqual({
       background: 'linear-gradient(#11998E, #38EF7D)',
     });
