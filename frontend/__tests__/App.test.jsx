@@ -12,8 +12,21 @@ jest.mock('axios', () => ({
   get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
 }));
 
+const setImmediatePromise = () => new Promise(setImmediate);
+
 describe('App', () => {
+  let linkElement;
+  beforeEach(() => {
+    linkElement = document.createElement('link');
+    linkElement.setAttribute('id', 'favicon');
+    linkElement.setAttribute('rel', 'icon');
+    linkElement.setAttribute('href', 'favicon.png');
+    document.getElementById = jest.fn().mockImplementation(() => linkElement);
+  });
+
   afterEach(() => {
+    linkElement = null;
+    document.getElementById.mockRestore();
     jest.clearAllMocks();
   });
 
@@ -36,13 +49,16 @@ describe('App', () => {
     `(
       'State changing $text',
       async ({ checkStateResultItems, checkStateResultStatus }) => {
-        const checkStateResult = {
-          items: checkStateResultItems,
-          status: checkStateResultStatus,
-        };
-
         wrapper = shallow(<App />, { disableLifecycleMethods: true });
-        wrapper.setState({ checkStateResult });
+        wrapper.instance().fetchState = jest.fn().mockResolvedValueOnce({
+          data: {
+            items: checkStateResultItems,
+            status: checkStateResultStatus,
+          },
+        });
+        wrapper.instance().updateState();
+
+        await setImmediatePromise();
 
         const lightScreenIndicator = wrapper.find(LightIndicatorScreen);
         expect(lightScreenIndicator.props()).toHaveProperty(
@@ -57,6 +73,10 @@ describe('App', () => {
         expect(timerLabel.props()).toHaveProperty(
           'status',
           checkStateResultStatus
+        );
+        expect(document.getElementById('favicon')).toHaveProperty(
+          'href',
+          `http://localhost/${checkStateResultStatus}.png`
         );
       }
     );
@@ -105,7 +125,7 @@ describe('App', () => {
     let app;
 
     beforeEach(() => {
-      jest.useFakeTimers("legacy");
+      jest.useFakeTimers('legacy');
       mockAxios.get.mockClear();
       App.prototype.fetchSettings = jest.fn();
       App.prototype.fetchState = jest.fn();
@@ -121,7 +141,7 @@ describe('App', () => {
     });
 
     test('should call fetchSettings, connect, setInterval and updateState during componentDidMount \
-    and call clearInterval in componentWillUnmount', (done) => {
+    and call clearInterval in componentWillUnmount', async () => {
       const lastChangedStatusTime = Date.now();
       const mockSettings = {
         serverUrl: 'http://localhost:8080',
@@ -143,26 +163,22 @@ describe('App', () => {
 
       app = shallow(<App />);
 
-      setImmediate(() => {
-        expect(App.prototype.fetchSettings).toHaveBeenCalledTimes(1);
-        expect(App.prototype.fetchState).toHaveBeenCalledTimes(1);
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        expect(app.state()).toHaveProperty(
-          'checkStateResult',
-          checkStateResult
-        );
-        expect(app.state()).toHaveProperty(
-          'lastChangedStatusTime',
-          lastChangedStatusTime
-        );
-        expect(setInterval).toHaveBeenCalledTimes(1);
-        app.unmount();
-        expect(clearInterval).toHaveBeenCalledTimes(1);
-        done();
-      });
+      await setImmediatePromise();
+
+      expect(App.prototype.fetchSettings).toHaveBeenCalledTimes(1);
+      expect(App.prototype.fetchState).toHaveBeenCalledTimes(1);
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      expect(app.state()).toHaveProperty('checkStateResult', checkStateResult);
+      expect(app.state()).toHaveProperty(
+        'lastChangedStatusTime',
+        lastChangedStatusTime
+      );
+      expect(setInterval).toHaveBeenCalledTimes(1);
+      app.unmount();
+      expect(clearInterval).toHaveBeenCalledTimes(1);
     });
 
-    test('check updateState interval 5000ms', (done) => {
+    test('check updateState interval 5000ms', async () => {
       const settings = {
         updateStateInterval: 5000,
         lastChangedStatusTime: Date.now(),
@@ -178,19 +194,18 @@ describe('App', () => {
 
       app = shallow(<App />);
 
-      setImmediate(() => {
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(1000);
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(5000);
-        expect(updateStateMock).toHaveBeenCalledTimes(2);
-        jest.advanceTimersByTime(50000);
-        expect(updateStateMock).toHaveBeenCalledTimes(12);
-        done();
-      });
+      await setImmediatePromise();
+
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(1000);
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(5000);
+      expect(updateStateMock).toHaveBeenCalledTimes(2);
+      jest.advanceTimersByTime(50000);
+      expect(updateStateMock).toHaveBeenCalledTimes(12);
     });
 
-    test('check updateState interval 30000ms', (done) => {
+    test('check updateState interval 30000ms', async () => {
       const settings = {
         updateStateInterval: 30000,
         lastChangedStatusTime: Date.now(),
@@ -206,19 +221,18 @@ describe('App', () => {
 
       app = shallow(<App />);
 
-      setImmediate(() => {
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(1000);
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(5000);
-        expect(updateStateMock).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(50000);
-        expect(updateStateMock).toHaveBeenCalledTimes(2);
-        done();
-      });
+      await setImmediatePromise();
+
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(1000);
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(5000);
+      expect(updateStateMock).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(50000);
+      expect(updateStateMock).toHaveBeenCalledTimes(2);
     });
 
-    test('read settings in componentDidMount', (done) => {
+    test('read settings in componentDidMount', async () => {
       const settings = { test: true, string: 'some string' };
 
       App.prototype.fetchSettings.mockResolvedValue({
@@ -231,10 +245,9 @@ describe('App', () => {
 
       const wrapper = shallow(<App />);
 
-      setImmediate(() => {
-        expect(wrapper.instance().settings).toEqual(settings);
-        done();
-      });
+      await setImmediatePromise();
+
+      expect(wrapper.instance().settings).toEqual(settings);
     });
   });
 

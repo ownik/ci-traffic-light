@@ -40,6 +40,9 @@ class App extends Component {
   updateState() {
     this.fetchState().then((responce) => {
       const { items, status, lastChangedStatusTime } = responce.data;
+      if (status !== this.state.checkStateResult.status) {
+        document.getElementById('favicon').href = `${status}.png`;
+      }
       this.setState({
         checkStateResult: { items, status },
         lastChangedStatusTime,
