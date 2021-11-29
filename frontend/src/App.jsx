@@ -19,14 +19,17 @@ class App extends Component {
 
   componentDidMount() {
     this.updateStateTime = 0;
-    this.fetchSettings().then((responce) => {
-      this.settings = responce.data;
-      this.setState({
-        lastChangedStatusTime: this.settings.lastChangedStatusTime,
+    this.fetchSettings()
+      .then((responce) => {
+        this.settings = responce.data;
+        this.setState({
+          lastChangedStatusTime: this.settings.lastChangedStatusTime,
+        });
+        return this.updateState();
+      })
+      .then(() => {
+        this.interval = setInterval(() => this.timerEvent(), 1000);
       });
-      this.updateState();
-      this.interval = setInterval(() => this.timerEvent(), 1000);
-    });
   }
 
   fetchSettings() {
@@ -38,7 +41,7 @@ class App extends Component {
   }
 
   updateState() {
-    this.fetchState().then((responce) => {
+    return this.fetchState().then((responce) => {
       const { items, status, lastChangedStatusTime } = responce.data;
       if (status !== this.state.checkStateResult.status) {
         document.getElementById('favicon').href = `${status}.png`;

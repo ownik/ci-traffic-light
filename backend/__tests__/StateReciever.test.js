@@ -5,6 +5,8 @@ const { Teamcity } = require('../src/Teamcity');
 jest.mock('../src/Teamcity');
 jest.mock('../src/SettingsStorage');
 
+const setImmediatePromise = () => new Promise(setImmediate);
+
 const lastChangedStatusTime = new Date(2020, 9, 20, 16, 55, 11).getTime();
 
 const makeSettings = (timeout) => {
@@ -57,37 +59,44 @@ describe('StateReciever', () => {
     expect(stateReciever.settingsStorage()).toBe(settingsStorage);
   });
 
-  test('setInterval 1000ms calls in constructor', () => {
+  test('setInterval 1000ms calls in constructor', async () => {
     expect(setInterval).toHaveBeenCalledTimes(0);
     settingsStorage.settings.mockReturnValue(makeSettings(1000));
     stateReciever = new StateReciever(settingsStorage);
+    await setImmediatePromise();
     expect(setInterval).toHaveBeenCalledTimes(1);
     expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 1000);
   });
 
-  test('setInterval 2000ms calls in constructor', () => {
+  test('setInterval 2000ms calls in constructor', async () => {
     expect(setInterval).toHaveBeenCalledTimes(0);
     settingsStorage.settings.mockReturnValue(makeSettings(2000));
     stateReciever = new StateReciever(settingsStorage);
+    await setImmediatePromise();
     expect(setInterval).toHaveBeenCalledTimes(1);
     expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 2000);
   });
 
-  test('clearInterval when reciever stopped', () => {
+  test('clearInterval when reciever stopped', async () => {
     expect(clearInterval).toHaveBeenCalledTimes(0);
     settingsStorage.settings.mockReturnValue(makeSettings(2000));
     stateReciever = new StateReciever(settingsStorage);
+    await setImmediatePromise();
     stateReciever.stop();
     stateReciever = null;
     expect(clearInterval).toHaveBeenCalledTimes(1);
   });
 
-  test('2000ms timeout after 10000ms calls 5times updateState and checkState', () => {
-    expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(0);
-    expect(updateStateSpy).toHaveBeenCalledTimes(0);
+  test('2000ms timeout after 10000ms calls 5times updateState and checkState', async () => {
+    Teamcity.prototype.checkState.mockClear();
+    updateStateSpy.mockClear();
     settingsStorage.settings.mockReturnValue(makeSettings(2000));
     stateReciever = new StateReciever(settingsStorage);
-    expect(updateStateSpy).toHaveBeenCalledTimes(0);
+    await setImmediatePromise();
+    expect(updateStateSpy).toHaveBeenCalledTimes(1);
+    expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(1);
+    Teamcity.prototype.checkState.mockClear();
+    updateStateSpy.mockClear();
     jest.advanceTimersByTime(10000);
     expect(updateStateSpy).toHaveBeenCalledTimes(5);
     expect(Teamcity.prototype.checkState).toHaveBeenCalledTimes(5);
@@ -96,9 +105,14 @@ describe('StateReciever', () => {
   test('check last state changed time', async () => {
     settingsStorage.settings.mockReturnValue(makeSettings(1000));
     stateReciever = new StateReciever(settingsStorage);
+    await setImmediatePromise();
 
-    expect(updateStateSpy).toHaveBeenCalledTimes(0);
-    expect(stateReciever.state()).toStrictEqual({ lastChangedStatusTime });
+    expect(updateStateSpy).toHaveBeenCalledTimes(1);
+    expect(stateReciever.state()).toStrictEqual({
+      items: [],
+      lastChangedStatusTime,
+      status: 'success',
+    });
 
     const state1 = { item: {}, status: 'success' };
     const nowTime1 = new Date(2020, 9, 19, 16, 39, 51).getTime();
@@ -139,11 +153,15 @@ describe('StateReciever', () => {
   test('check update last state changed time', async () => {
     settingsStorage.settings.mockReturnValue(makeSettings(1000));
     stateReciever = new StateReciever(settingsStorage);
+    await setImmediatePromise();
 
-    expect(updateStateSpy).toHaveBeenCalledTimes(0);
+    expect(updateStateSpy).toHaveBeenCalledTimes(1);
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
-      0
+      1
     );
+
+    updateStateSpy.mockClear();
+    settingsStorage.updateLastChangedStatusTime.mockClear();
 
     const state1 = { item: {}, status: 'success' };
     const nowTime1 = new Date(2020, 9, 19, 16, 39, 51).getTime();

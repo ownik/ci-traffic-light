@@ -56,9 +56,8 @@ describe('App', () => {
             status: checkStateResultStatus,
           },
         });
-        wrapper.instance().updateState();
 
-        await setImmediatePromise();
+        await wrapper.instance().updateState();
 
         const lightScreenIndicator = wrapper.find(LightIndicatorScreen);
         expect(lightScreenIndicator.props()).toHaveProperty(

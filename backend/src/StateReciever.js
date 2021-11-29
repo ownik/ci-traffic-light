@@ -4,11 +4,13 @@ class StateReciever {
   constructor(settingsStorage) {
     this._settingsStorage = settingsStorage;
     const settings = this._settingsStorage.settings();
-    this._intervalId = setInterval(() => {
-      this.updateState();
-    }, settings.updateStateInterval);
     this._teamcity = new Teamcity(settings);
     this._state = {};
+    this.updateState().then(() => {
+      this._intervalId = setInterval(() => {
+        this.updateState();
+      }, settings.updateStateInterval);
+    });
   }
 
   settingsStorage() {
@@ -24,7 +26,7 @@ class StateReciever {
   }
 
   updateState() {
-    this._teamcity
+    return this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
         if (state.status != this._state.status) {
