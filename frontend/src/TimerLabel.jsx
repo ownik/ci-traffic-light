@@ -10,9 +10,7 @@ const secsInDay = secsInHour * 24;
 function toDDHHMM(time, now, separator) {
   const secs = (now - time) / msInSec;
 
-  if (secs < 0) {
-    throw new Error(`${time} passed past date`);
-  }
+  if (secs < 0) throw new Error(`${time} passed past date`);
 
   let days = Math.floor(secs / secsInDay);
   let hours = Math.floor((secs - days * secsInDay) / secsInHour);
@@ -31,15 +29,9 @@ function toDDHHMM(time, now, separator) {
     days = '';
   }
 
-  if (hours < 10) {
-    hours = '0' + hours;
-  }
-  if (minutes < 10) {
-    minutes = '0' + minutes;
-  }
-  if (seconds < 10) {
-    seconds = '0' + seconds;
-  }
+  if (hours < 10) hours = '0' + hours;
+  if (minutes < 10) minutes = '0' + minutes;
+  if (seconds < 10) seconds = '0' + seconds;
 
   return `${days}${hours}${separator}${minutes}${separator}${seconds}`;
 }
