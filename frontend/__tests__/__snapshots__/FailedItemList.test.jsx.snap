@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FailedItemList check display items snapshot 1`] = `"<div class=\\"failed-item-list\\"><ul><li><span><a href=\\"testhref1\\">item1</a></span></li><li><span><a href=\\"testhref2\\">item2</a></span></li><li><span>item3</span></li></ul></div>"`;

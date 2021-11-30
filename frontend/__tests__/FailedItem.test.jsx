@@ -10,8 +10,21 @@ describe('FailedItem', () => {
 
   test('display name render as text', () => {
     expect(
-      shallow(<FailedItem displayName="Some display test" />).text()
-    ).toEqual('Some display test');
+      shallow(<FailedItem displayName="Some display test" />).html()
+    ).toEqual('<li><span>Some display test</span></li>');
+  });
+
+  test('display name with href render as link', () => {
+    expect(
+      shallow(
+        <FailedItem
+          displayName="Some display test"
+          href="http://localhost/href"
+        />
+      ).html()
+    ).toEqual(
+      '<li><span><a href="http://localhost/href">Some display test</a></span></li>'
+    );
   });
 
   test('no running - no progress spinner', () => {

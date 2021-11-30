@@ -32,3 +32,18 @@ div.failed-item-list > ul > li.exit {
 div.failed-item-list > ul > li.exit-active {
   opacity: 0;
 }
+
+div.failed-item-list > ul > li > span > a:link,
+a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+div.failed-item-list > ul > li > span > a:hover,
+a:active {
+  color: white;
+  text-decoration: none;
+  border-bottom: 2px solid white;
+  display: inline-block;
+  line-height: 0.85;
+}

@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LightIndicatorScreen fail state snapshot 1`] = `"<div class=\\"indicator-screen fail\\" style=\\"background:linear-gradient(#FF416C, #FF4B2B)\\"><div class=\\"failed-item-list\\"><ul><li><span><a href=\\"testhref1\\">item1</a></span></li><li><span><a href=\\"testhref2\\">item2</a></span></li><li><span>item3</span></li></ul></div></div>"`;
+
+exports[`LightIndicatorScreen success state snapshot 1`] = `"<div class=\\"indicator-screen success\\" style=\\"background:linear-gradient(#11998E, #38EF7D)\\"><div class=\\"failed-item-list\\"><ul></ul></div></div>"`;

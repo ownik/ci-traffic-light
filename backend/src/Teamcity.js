@@ -72,23 +72,34 @@ class Teamcity {
     return projectStructure;
   }
 
-  async isFinishedBuildFail(buildTypeId) {
+  async lastFinishedFailedBuildUrl(buildTypeId) {
     const goodStatuses = [STATUSES.Success, STATUSES.Unknown];
     const response = await this.httpGet(
       `${this.serverUrl}/app/rest/latest/builds?locator=branch:${this.branch},failedToStart:any,running:false,canceled:false,count:1,buildType:(${buildTypeId})`
     );
-    return response.data.build && response.data.build.length > 0
-      ? !goodStatuses.includes(response.data.build[0].status.toUpperCase())
-      : false;
+    return response.data.build &&
+      response.data.build.length > 0 &&
+      !goodStatuses.includes(response.data.build[0].status.toUpperCase())
+      ? response.data.build[0].webUrl
+      : null;
   }
 
-  async isRunningBuildSuccess(buildTypeId) {
+  async runningBuilds(buildTypeId) {
     const response = await this.httpGet(
-      `${this.serverUrl}/app/rest/latest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,count:1,buildType:(${buildTypeId})`
+      `${this.serverUrl}/app/rest/latest/builds?locator=branch:${this.branch},failedToStart:any,running:true,canceled:false,buildType:(${buildTypeId})`
     );
     return response.data.build && response.data.build.length > 0
-      ? response.data.build[0].status.toUpperCase() == STATUSES.Success
-      : null;
+      ? response.data.build.map((item) => {
+          return {
+            href: item.webUrl,
+            success: item.status.toUpperCase() == STATUSES.Success,
+          };
+        })
+      : [];
+  }
+
+  buildTypeWebUrl(buildTypeId) {
+    return `${this.serverUrl}/viewLog.html?buildTypeId=${buildTypeId}`;
   }
 
   async checkState(buildTypes) {
@@ -98,16 +109,27 @@ class Teamcity {
     const items = (
       await Promise.all(
         buildTypes.map(async (buildType) => {
-          const finishedFailed = await this.isFinishedBuildFail(buildType);
-          const runningSuccess = await this.isRunningBuildSuccess(buildType);
-
-          if (finishedFailed || (runningSuccess != null && !runningSuccess)) {
+          const lastFinishedFailedBuildUrl =
+            await this.lastFinishedFailedBuildUrl(buildType);
+          const runningBuilds = await this.runningBuilds(buildType);
+          const hasSomeRunningFailed = runningBuilds.some(
+            (item) => !item.success
+          );
+          if (
+            lastFinishedFailedBuildUrl ||
+            (runningBuilds.length > 0 && hasSomeRunningFailed)
+          ) {
             return {
               id: buildType,
               displayName: projectsStructure.getName(buildType),
+              href: lastFinishedFailedBuildUrl
+                ? lastFinishedFailedBuildUrl
+                : hasSomeRunningFailed
+                ? this.buildTypeWebUrl(buildType)
+                : '',
               investigators:
                 investigations.fetchInvestigationUserForBuildType(buildType),
-              running: runningSuccess != null,
+              running: runningBuilds.length > 0,
             };
           }
 

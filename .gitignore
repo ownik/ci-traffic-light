@@ -1,5 +1,7 @@
 node_modules
 public
 coverage
-ci-state-indicator.exe
+ci-state-indicator-win.exe
+ci-state-indicator-linux
+ci-state-indicator-macos
 settings.json

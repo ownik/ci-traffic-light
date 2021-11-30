@@ -15,16 +15,28 @@ describe('FailedItemList', () => {
     );
   });
 
+  const items = [
+    { displayName: 'item1', href: 'testhref1' },
+    { displayName: 'item2', href: 'testhref2' },
+    { displayName: 'item3' },
+  ];
+
   test('check display items', () => {
-    const items = [
-      { displayName: 'item1' },
-      { displayName: 'item2' },
-      { displayName: 'item3' },
-    ];
     const wrapper = shallow(<FailedItemList items={items} />);
     expect(wrapper.find(FailedItem)).toHaveLength(items.length);
-    wrapper.find(FailedItem).forEach((item, index) => {
-      expect(item.dive().text()).toEqual(items[index].displayName);
+    let actual = [];
+    wrapper.find(FailedItem).forEach((item) => {
+      actual.push(item.props());
     });
+    expect(actual).toStrictEqual([
+      { displayName: 'item1', href: 'testhref1' },
+      { displayName: 'item2', href: 'testhref2' },
+      { displayName: 'item3', href: '' },
+    ]);
+  });
+
+  test('check display items snapshot', () => {
+    const wrapper = shallow(<FailedItemList items={items} />);
+    expect(wrapper.html()).toMatchSnapshot();
   });
 });

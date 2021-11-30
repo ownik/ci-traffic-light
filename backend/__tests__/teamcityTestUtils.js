@@ -1,3 +1,6 @@
+const makeBuildWebUrl = (buildTypeId) =>
+  `http://localhost:8111/viewLog.html?buildId=1&buildTypeId=${buildTypeId}`;
+
 const makeBuildsJson = (buildTypeId, status) => {
   if (status === null) {
     return {
@@ -145,6 +148,7 @@ const makeAllBuildTypesJson = (arr) => {
 };
 
 module.exports = {
+  makeBuildWebUrl,
   makeBuildsJson,
   makeRunningBuildsJson,
   makeInvestigationJson,

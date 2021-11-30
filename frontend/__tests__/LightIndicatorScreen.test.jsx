@@ -70,20 +70,38 @@ describe('LightIndicatorScreen', () => {
     const wrapper = shallow(<LightIndicatorScreen status="success" />);
     expect(wrapper.find(FailedItemList)).toHaveLength(1);
   });
+  const items = [
+    { displayName: 'item1', href: 'testhref1' },
+    { displayName: 'item2', href: 'testhref2' },
+    { displayName: 'item3' },
+  ];
 
   test('FailedItemList visible on status fail with setted items', () => {
-    const items = [
-      { displayName: 'item1' },
-      { displayName: 'item2' },
-      { displayName: 'item3' },
-    ];
     const wrapper = shallow(
       <LightIndicatorScreen status="fail" items={items} />
     );
     const listWrapper = wrapper.find(FailedItemList).dive();
     expect(listWrapper.find(FailedItem)).toHaveLength(items.length);
-    listWrapper.find(FailedItem).forEach((item, index) => {
-      expect(item.dive().text()).toEqual(items[index].displayName);
+    let actual = [];
+    listWrapper.find(FailedItem).forEach((item) => {
+      actual.push(item.props());
     });
+    expect(actual).toStrictEqual([
+      { displayName: 'item1', href: 'testhref1' },
+      { displayName: 'item2', href: 'testhref2' },
+      { displayName: 'item3', href: '' },
+    ]);
+  });
+
+  test('success state snapshot', () => {
+    const wrapper = shallow(<LightIndicatorScreen status="success" />);
+    expect(wrapper.html()).toMatchSnapshot();
+  });
+
+  test('fail state snapshot', () => {
+    const wrapper = shallow(
+      <LightIndicatorScreen status="fail" items={items} />
+    );
+    expect(wrapper.html()).toMatchSnapshot();
   });
 });
