@@ -1,7 +1,6 @@
 const axios = require('axios');
 const Investigations = require('./Investigations');
 const ProjectStructure = require('./ProjectsStructure');
-const ProjectsStructure = require('./ProjectsStructure');
 
 const STATUSES = {
   Success: 'SUCCESS',
