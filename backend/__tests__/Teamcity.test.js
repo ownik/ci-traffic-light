@@ -278,56 +278,142 @@ describe('Teamcity', () => {
       .addBuild('Build 1', 'Build 1 Name', null)
       .addBuild('Build 2', 'Build 2 Name', null);
 
-    const twoFailedBuildsExpected = {
-      items: [
-        {
-          id: 'Build 1',
-          displayName: 'Build 1 Name',
-          href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
-          investigators: [],
-          running: false,
+    test.each([
+      {
+        text: 'one build - no failed',
+        buildTypes: ['Build 1'],
+        investigations: new Investigations(),
+        failedBuilds: [],
+        runningBuilds: {},
+        expected: { items: [], status: 'success' },
+      },
+      {
+        text: 'one build - failed',
+        buildTypes: ['Build 1'],
+        investigations: new Investigations(),
+        failedBuilds: ['Build 1'],
+        runningBuilds: {},
+        expected: {
+          items: [
+            {
+              id: 'Build 1',
+              displayName: 'Build 1 Name',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
+              investigators: [],
+              running: false,
+            },
+          ],
+          status: 'fail',
         },
-        {
-          id: 'Build 2',
-          displayName: 'Build 2 Name',
-          href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 2',
-          investigators: [],
-          running: false,
+      },
+      {
+        text: 'one build - running failed',
+        buildTypes: ['Build 1'],
+        investigations: new Investigations(),
+        failedBuilds: [],
+        runningBuilds: {
+          'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: false }],
         },
-      ],
-      status: 'fail',
-    };
-
-    const twoFailedBuildsOneSameInvestigatorExpected = {
-      items: [
-        {
-          id: 'Build 1',
-          href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
-          displayName: 'Build 1 Name',
-          investigators: ['user1'],
-          running: false,
+        expected: {
+          items: [
+            {
+              id: 'Build 1',
+              displayName: 'Build 1 Name',
+              href: `${teamcity.buildTypeWebUrl('Build 1')}`,
+              investigators: [],
+              running: true,
+            },
+          ],
+          status: 'fail',
         },
-        {
-          id: 'Build 2',
-          displayName: 'Build 2 Name',
-          href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 2',
-          investigators: ['user1'],
-          running: false,
+      },
+      {
+        text: 'one build - running success',
+        buildTypes: ['Build 1'],
+        investigations: new Investigations(),
+        failedBuilds: [],
+        runningBuilds: {
+          'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: true }],
         },
-      ],
-      status: 'fail',
-    };
-
-    test.each`
-      text                                          | buildTypes                | investigations                                                            | failedBuilds              | runningBuilds                                                            | expected
-      ${'one build - no failed'}                    | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{}}                                                                    | ${{ items: [], status: 'success' }}
-      ${'one build - failed'}                       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{}}                                                                    | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1', investigators: [], running: false }], status: 'fail' }}
-      ${'one build - running failed'}               | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: false }] }} | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', href: `${teamcity.buildTypeWebUrl('Build 1')}`, investigators: [], running: true }], status: 'fail' }}
-      ${'one build - running success'}              | ${['Build 1']}            | ${new Investigations()}                                                   | ${[]}                     | ${{ 'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: true }] }}  | ${{ items: [], status: 'success' }}
-      ${'one build - failed running success'}       | ${['Build 1']}            | ${new Investigations()}                                                   | ${['Build 1']}            | ${{ 'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: true }] }}  | ${{ items: [{ id: 'Build 1', displayName: 'Build 1 Name', href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1', investigators: [], running: true }], status: 'fail' }}
-      ${'two build - failed'}                       | ${['Build 1', 'Build 2']} | ${new Investigations()}                                                   | ${['Build 1', 'Build 2']} | ${{}}                                                                    | ${twoFailedBuildsExpected}
-      ${'two build - failed one same investigator'} | ${['Build 1', 'Build 2']} | ${new Investigations().addInvestigation('user1', ['Build 1', 'Build 2'])} | ${['Build 1', 'Build 2']} | ${{}}                                                                    | ${twoFailedBuildsOneSameInvestigatorExpected}
-    `(
+        expected: { items: [], status: 'success' },
+      },
+      {
+        text: 'one build - failed running success',
+        buildTypes: ['Build 1'],
+        investigations: new Investigations(),
+        failedBuilds: ['Build 1'],
+        runningBuilds: {
+          'Build 1': [{ href: makeBuildWebUrl('Build 1'), success: true }],
+        },
+        expected: {
+          items: [
+            {
+              id: 'Build 1',
+              displayName: 'Build 1 Name',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
+              investigators: [],
+              running: true,
+            },
+          ],
+          status: 'fail',
+        },
+      },
+      {
+        text: 'two build - failed',
+        buildTypes: ['Build 1', 'Build 2'],
+        investigations: new Investigations(),
+        failedBuilds: ['Build 1', 'Build 2'],
+        runningBuilds: {},
+        expected: {
+          items: [
+            {
+              id: 'Build 1',
+              displayName: 'Build 1 Name',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
+              investigators: [],
+              running: false,
+            },
+            {
+              id: 'Build 2',
+              displayName: 'Build 2 Name',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 2',
+              investigators: [],
+              running: false,
+            },
+          ],
+          status: 'fail',
+        },
+      },
+      {
+        text: 'two build - failed one same investigator',
+        buildTypes: ['Build 1', 'Build 2'],
+        investigations: new Investigations().addInvestigation('user1', [
+          'Build 1',
+          'Build 2',
+        ]),
+        failedBuilds: ['Build 1', 'Build 2'],
+        runningBuilds: {},
+        expected: {
+          items: [
+            {
+              id: 'Build 1',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 1',
+              displayName: 'Build 1 Name',
+              investigators: ['user1'],
+              running: false,
+            },
+            {
+              id: 'Build 2',
+              displayName: 'Build 2 Name',
+              href: 'http://localhost:8111/viewLog.html?buildId=1&buildTypeId=Build 2',
+              investigators: ['user1'],
+              running: false,
+            },
+          ],
+          status: 'fail',
+        },
+      },
+    ])(
       '$text',
       async ({
         buildTypes,
