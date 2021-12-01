@@ -12,8 +12,6 @@ describe('ProjectsStructure', () => {
     .addBuild('LinuxBuild2', 'Build 2', 'Linux')
     .addBuild('LinuxBuild3', 'Build 3', 'Linux');
 
-  console.log(JSON.stringify(structure._projects));
-
   test.each([
     { id: 'Windows', expectedName: 'Windows Project Name' },
     { id: 'WindowsSubProject1Build3', expectedName: 'Build 3' },
