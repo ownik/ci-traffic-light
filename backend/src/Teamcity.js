@@ -111,13 +111,16 @@ class Teamcity {
           const lastFinishedFailedBuildUrl =
             await this.lastFinishedFailedBuildUrl(buildType);
           const runningBuilds = await this.runningBuilds(buildType);
+
           const hasSomeRunningFailed = runningBuilds.some(
             (item) => !item.success
           );
-          if (
+
+          const hasFailedFinishedOrRunningBuild =
             lastFinishedFailedBuildUrl ||
-            (runningBuilds.length > 0 && hasSomeRunningFailed)
-          ) {
+            (runningBuilds.length > 0 && hasSomeRunningFailed);
+
+          if (hasFailedFinishedOrRunningBuild) {
             return {
               id: buildType,
               displayName: projectsStructure.getName(buildType),
@@ -137,13 +140,7 @@ class Teamcity {
       )
     ).filter((item) => item != null);
 
-    let status = 'success';
-
-    if (items.length > 0) {
-      status = 'fail';
-    }
-
-    return { status, items };
+    return { status: items.length > 0 ? 'fail' : 'success', items };
   }
 }
 

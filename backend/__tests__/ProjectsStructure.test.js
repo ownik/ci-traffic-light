@@ -12,12 +12,17 @@ describe('ProjectsStructure', () => {
     .addBuild('LinuxBuild2', 'Build 2', 'Linux')
     .addBuild('LinuxBuild3', 'Build 3', 'Linux');
 
-  test.each`
-    id                            | expectedName
-    ${'Windows'}                  | ${'Windows Project Name'}
-    ${'WindowsSubProject1Build3'} | ${'Build 3'}
-    ${'NotExistedId'}             | ${'NotExistedId'}
-  `('$expected when state is $state', async ({ id, expectedName }) => {
+  console.log(JSON.stringify(structure._projects));
+
+  test.each([
+    { id: 'Windows', expectedName: 'Windows Project Name' },
+    { id: 'WindowsSubProject1Build3', expectedName: 'Build 3' },
+    { id: 'NotExistedId', expectedName: 'NotExistedId' },
+  ])('$expected when state is $state', async ({ id, expectedName }) => {
     expect(structure.getName(id)).toEqual(expectedName);
+  });
+
+  test('toString', () => {
+    expect(structure.toString()).toMatchSnapshot();
   });
 });

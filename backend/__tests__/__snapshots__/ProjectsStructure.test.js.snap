@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProjectsStructure toString 1`] = `
+"null - null
+  Windows - Windows Project Name
+    WindowsSubProject1 - Windows SubProject Name
+      WindowsSubProject1Build1 - Build 1
+      WindowsSubProject1Build2 - Build 2
+      WindowsSubProject1Build3 - Build 3
+  Linux - Linux Project Name
+    LinuxBuild1 - Build 1
+    LinuxBuild2 - Build 2
+    LinuxBuild3 - Build 3
+"
+`;
