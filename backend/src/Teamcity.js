@@ -112,9 +112,7 @@ class Teamcity {
             await this.lastFinishedFailedBuildUrl(buildType);
           const runningBuilds = await this.runningBuilds(buildType);
 
-          const hasSomeRunningFailed = runningBuilds.some(
-            (item) => !item.success
-          );
+          const hasSomeRunningFailed = runningBuilds.some((i) => !i.success);
 
           const hasFailedFinishedOrRunningBuild =
             lastFinishedFailedBuildUrl ||
@@ -124,11 +122,11 @@ class Teamcity {
             return {
               id: buildType,
               displayName: projectsStructure.getName(buildType),
-              href: lastFinishedFailedBuildUrl
-                ? lastFinishedFailedBuildUrl
-                : hasSomeRunningFailed
-                ? this.buildTypeWebUrl(buildType)
-                : '',
+              href: this.failedOrRunningBuildUrl(
+                lastFinishedFailedBuildUrl,
+                hasSomeRunningFailed,
+                buildType
+              ),
               investigators:
                 investigations.fetchInvestigationUserForBuildType(buildType),
               running: runningBuilds.length > 0,
@@ -141,6 +139,16 @@ class Teamcity {
     ).filter((item) => item != null);
 
     return { status: items.length > 0 ? 'fail' : 'success', items };
+  }
+
+  failedOrRunningBuildUrl(
+    lastFinishedFailedBuildUrl,
+    hasSomeRunningFailed,
+    buildType
+  ) {
+    if (lastFinishedFailedBuildUrl) return lastFinishedFailedBuildUrl;
+    if (hasSomeRunningFailed) return this.buildTypeWebUrl(buildType);
+    return '';
   }
 }
 
