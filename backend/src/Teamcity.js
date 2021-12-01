@@ -124,7 +124,6 @@ class Teamcity {
               displayName: projectsStructure.getName(buildType),
               href: this.failedOrRunningBuildUrl(
                 lastFinishedFailedBuildUrl,
-                hasSomeRunningFailed,
                 buildType
               ),
               investigators:
@@ -141,14 +140,9 @@ class Teamcity {
     return { status: items.length > 0 ? 'fail' : 'success', items };
   }
 
-  failedOrRunningBuildUrl(
-    lastFinishedFailedBuildUrl,
-    hasSomeRunningFailed,
-    buildType
-  ) {
+  failedOrRunningBuildUrl(lastFinishedFailedBuildUrl, buildType) {
     if (lastFinishedFailedBuildUrl) return lastFinishedFailedBuildUrl;
-    if (hasSomeRunningFailed) return this.buildTypeWebUrl(buildType);
-    return '';
+    return this.buildTypeWebUrl(buildType);
   }
 }
 
