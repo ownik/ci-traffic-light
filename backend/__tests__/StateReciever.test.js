@@ -245,4 +245,37 @@ describe('StateReciever', () => {
     expect(statusChangedMock).toHaveBeenCalledTimes(1);
     expect(statusChangedMock).toHaveBeenCalledWith('success', []);
   });
+
+  test('check call events handlers itemsChanged', async () => {
+    const state0 = { items: [{ id: 'Build 1' }], status: 'fail' };
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state0);
+    settingsStorage.settings.mockReturnValue(makeSettings(1000));
+    const itemsChangedMock = jest.fn();
+    stateReciever = new StateReciever(settingsStorage, {
+      itemsChanged: itemsChangedMock,
+    });
+    await setImmediatePromise();
+
+    expect(itemsChangedMock).toHaveBeenCalledTimes(0);
+    itemsChangedMock.mockClear();
+
+    const state1 = {
+      items: [{ id: 'Build 1' }, { id: 'Build 2' }],
+      status: 'fail',
+    };
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state1);
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    expect(itemsChangedMock).toHaveBeenCalledTimes(1);
+    expect(itemsChangedMock).toHaveBeenCalledWith('fail', [
+      { id: 'Build 1' },
+      { id: 'Build 2' },
+    ]);
+    itemsChangedMock.mockClear();
+
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state1);
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    expect(itemsChangedMock).toHaveBeenCalledTimes(0);
+  });
 });

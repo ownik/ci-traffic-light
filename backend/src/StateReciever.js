@@ -1,4 +1,5 @@
 const { Teamcity } = require('./Teamcity');
+const ArrayUtils = require('./ArrayUtils');
 
 class StateReciever {
   constructor(settingsStorage, eventsHandlers) {
@@ -7,9 +8,9 @@ class StateReciever {
     const settings = this._settingsStorage.settings();
     this._teamcity = new Teamcity(settings);
     this._state = {};
-    this.updateState().then(() => {
+    this.updateState(true).then(() => {
       this._intervalId = setInterval(() => {
-        this.updateState();
+        this.updateState(false);
       }, settings.updateStateInterval);
     });
   }
@@ -26,14 +27,28 @@ class StateReciever {
     };
   }
 
-  updateState() {
+  hasStatusChangedEventHandler() {
+    return this._eventsHandlers && this._eventsHandlers.statusChanged;
+  }
+
+  hasItemsChangedEventHandler() {
+    return this._eventsHandlers && this._eventsHandlers.itemsChanged;
+  }
+
+  updateState(init) {
     return this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
         const isStatusChanged =
           this._settingsStorage.updateLastChangedStatusTime(state.status);
-        if (isStatusChanged) {
+        if (isStatusChanged && this.hasStatusChangedEventHandler()) {
           this._eventsHandlers.statusChanged(state.status, state.items);
+        } else if (!init && this.hasItemsChangedEventHandler()) {
+          const currentItemsIds = this._state.items.map((i) => i.id).sort();
+          const newItemsIds = state.items.map((i) => i.id).sort();
+          if (!ArrayUtils.equals(currentItemsIds, newItemsIds)) {
+            this._eventsHandlers.itemsChanged(state.status, state.items);
+          }
         }
         this._state = state;
       });
