@@ -32,6 +32,7 @@ describe('Settings', () => {
     const settingsStorage = new SettingsStorage('./settings.json');
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(1);
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledWith('');
+    expect(updateLastChangedStatusTimeSpy).toHaveReturnedWith(true);
     expect(fs.readFileSync).toHaveBeenCalledTimes(1);
     expect(fs.readFileSync).toHaveBeenCalledWith('./settings.json');
     expect(settingsStorage.settings()).toEqual({
@@ -81,6 +82,8 @@ describe('Settings', () => {
     const settingsStorage = new SettingsStorage('settings.json');
 
     expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(1);
+    expect(updateLastChangedStatusTimeSpy).toHaveReturnedWith(true);
+    updateLastChangedStatusTimeSpy.mockClear();
     expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       'settings.json',
@@ -94,6 +97,7 @@ describe('Settings', () => {
         2
       )
     );
+    fs.writeFileSync.mockClear();
 
     settingsStorage.updateLastChangedStatusTime('success');
     expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
@@ -101,8 +105,9 @@ describe('Settings', () => {
     );
     expect(settingsStorage.settings().lastStatus).toStrictEqual('success');
 
-    expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(2);
-    expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
+    expect(updateLastChangedStatusTimeSpy).toHaveBeenCalledTimes(1);
+    expect(updateLastChangedStatusTimeSpy).toHaveReturnedWith(true);
+    expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       'settings.json',
       JSON.stringify(
@@ -131,7 +136,8 @@ describe('Settings', () => {
     const settingsStorage = new SettingsStorage('settings.json');
     const newTime = new Date(2020, 9, 20, 21, 18, 33);
     Date.now.mockReturnValue(newTime.getTime());
-    settingsStorage.updateLastChangedStatusTime('fail');
+    const isStatusChanged = settingsStorage.updateLastChangedStatusTime('fail');
+    expect(isStatusChanged).toBeTruthy();
     expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
       newTime.getTime()
     );
@@ -166,7 +172,9 @@ describe('Settings', () => {
     const settingsStorage = new SettingsStorage('settings.json');
     const newTime = new Date(2020, 9, 20, 21, 18, 33);
     Date.now.mockReturnValue(newTime.getTime());
-    settingsStorage.updateLastChangedStatusTime('success');
+    const isStatusChanged =
+      settingsStorage.updateLastChangedStatusTime('success');
+    expect(isStatusChanged).toBeFalsy();
     expect(settingsStorage.settings().lastChangedStatusTime).toStrictEqual(
       mockSettings.lastChangedStatusTime
     );

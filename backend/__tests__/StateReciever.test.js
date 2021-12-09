@@ -25,6 +25,8 @@ Teamcity.prototype.checkState.mockResolvedValue({
   status: 'success',
 });
 
+SettingsStorage.prototype.updateLastChangedStatusTime.mockReturnValue(false);
+
 const updateStateSpy = jest.spyOn(StateReciever.prototype, 'updateState');
 
 const settingsStorage = new SettingsStorage('settings.json');
@@ -114,10 +116,10 @@ describe('StateReciever', () => {
       status: 'success',
     });
 
-    const state1 = { item: {}, status: 'success' };
+    const state1 = { items: [], status: 'success' };
     const nowTime1 = new Date(2020, 9, 19, 16, 39, 51).getTime();
     Date.now.mockReturnValueOnce(nowTime1);
-    Teamcity.prototype.checkState.mockResolvedValue(state1);
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state1);
     settingsStorage.settings.mockReturnValue({
       lastChangedStatusTime: nowTime1,
     });
@@ -135,10 +137,10 @@ describe('StateReciever', () => {
       lastChangedStatusTime: nowTime1,
     });
 
-    const state2 = { item: ['Build 1'], status: 'fail' };
+    const state2 = { items: [{ id: 'Build 1' }], status: 'fail' };
     const nowTime2 = new Date(2020, 9, 20, 16, 55, 11).getTime();
     Date.now.mockReturnValueOnce(nowTime2);
-    Teamcity.prototype.checkState.mockResolvedValue(state2);
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state2);
     settingsStorage.settings.mockReturnValue({
       lastChangedStatusTime: nowTime2,
     });
@@ -151,6 +153,8 @@ describe('StateReciever', () => {
   });
 
   test('check update last state changed time', async () => {
+    const state0 = { items: [{ id: 'Build 1' }], status: 'fail' };
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state0);
     settingsStorage.settings.mockReturnValue(makeSettings(1000));
     stateReciever = new StateReciever(settingsStorage);
     await setImmediatePromise();
@@ -159,14 +163,17 @@ describe('StateReciever', () => {
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
       1
     );
+    expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
+      'fail'
+    );
 
     updateStateSpy.mockClear();
     settingsStorage.updateLastChangedStatusTime.mockClear();
 
-    const state1 = { item: {}, status: 'success' };
+    const state1 = { items: [], status: 'success' };
     const nowTime1 = new Date(2020, 9, 19, 16, 39, 51).getTime();
     Date.now.mockReturnValueOnce(nowTime1);
-    Teamcity.prototype.checkState.mockResolvedValue(state1);
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state1);
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
@@ -187,10 +194,10 @@ describe('StateReciever', () => {
     );
     settingsStorage.updateLastChangedStatusTime.mockClear();
 
-    const state2 = { item: ['Build 1'], status: 'fail' };
+    const state2 = { items: [{ id: 'Build 1' }], status: 'fail' };
     const nowTime2 = new Date(2020, 9, 20, 16, 55, 11).getTime();
     Date.now.mockReturnValueOnce(nowTime2);
-    Teamcity.prototype.checkState.mockResolvedValue(state2);
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state2);
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledTimes(
@@ -199,5 +206,43 @@ describe('StateReciever', () => {
     expect(settingsStorage.updateLastChangedStatusTime).toHaveBeenCalledWith(
       'fail'
     );
+  });
+
+  test('check call events handlers statusChanged', async () => {
+    const state0 = { items: [{ id: 'Build 1' }], status: 'fail' };
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state0);
+    settingsStorage.settings.mockReturnValue(makeSettings(1000));
+    const statusChangedMock = jest.fn();
+    stateReciever = new StateReciever(settingsStorage, {
+      statusChanged: statusChangedMock,
+    });
+    SettingsStorage.prototype.updateLastChangedStatusTime.mockReturnValueOnce(
+      true
+    );
+    await setImmediatePromise();
+
+    expect(statusChangedMock).toHaveBeenCalledTimes(1);
+    expect(statusChangedMock).toHaveBeenCalledWith('fail', [{ id: 'Build 1' }]);
+    statusChangedMock.mockClear();
+
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state0);
+    SettingsStorage.prototype.updateLastChangedStatusTime.mockReturnValueOnce(
+      false
+    );
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+
+    expect(statusChangedMock).toHaveBeenCalledTimes(0);
+
+    const state1 = { items: [], status: 'success' };
+    Teamcity.prototype.checkState.mockResolvedValueOnce(state1);
+    SettingsStorage.prototype.updateLastChangedStatusTime.mockReturnValueOnce(
+      true
+    );
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+
+    expect(statusChangedMock).toHaveBeenCalledTimes(1);
+    expect(statusChangedMock).toHaveBeenCalledWith('success', []);
   });
 });

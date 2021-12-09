@@ -1,8 +1,9 @@
 const { Teamcity } = require('./Teamcity');
 
 class StateReciever {
-  constructor(settingsStorage) {
+  constructor(settingsStorage, eventsHandlers) {
     this._settingsStorage = settingsStorage;
+    this._eventsHandlers = eventsHandlers;
     const settings = this._settingsStorage.settings();
     this._teamcity = new Teamcity(settings);
     this._state = {};
@@ -29,7 +30,11 @@ class StateReciever {
     return this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
-        this._settingsStorage.updateLastChangedStatusTime(state.status);
+        const isStatusChanged =
+          this._settingsStorage.updateLastChangedStatusTime(state.status);
+        if (isStatusChanged) {
+          this._eventsHandlers.statusChanged(state.status, state.items);
+        }
         this._state = state;
       });
   }

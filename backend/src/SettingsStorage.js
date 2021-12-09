@@ -18,7 +18,9 @@ class SettingsStorage {
       this._settings.lastChangedStatusTime = Date.now();
       this._settings.lastStatus = status;
       fs.writeFileSync(this._file, JSON.stringify(this._settings, null, 2));
+      return true;
     }
+    return false;
   }
 }
 
