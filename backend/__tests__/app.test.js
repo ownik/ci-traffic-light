@@ -50,10 +50,16 @@ describe('App', () => {
     expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(0);
     expect(StateReciever).toHaveBeenCalledTimes(0);
 
-    const app = require('../app');
+    let app;
+    jest.isolateModules(() => {
+      app = require('../app');
+    });
 
     expect(StateReciever).toHaveBeenCalledTimes(1);
-    expect(StateReciever).toHaveBeenCalledWith(expect.any(SettingsStorage));
+    expect(StateReciever).toHaveBeenCalledWith(
+      expect.any(SettingsStorage),
+      null
+    );
 
     const responce = await request(app).get('/settings.json');
 
@@ -67,7 +73,12 @@ describe('App', () => {
   test('/state.json should return state from Teamcity', async () => {
     SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
     StateReciever.prototype.state.mockReturnValue(mockState);
-    const app = require('../app');
+
+    let app;
+    jest.isolateModules(() => {
+      app = require('../app');
+    });
+
     const responce = await request(app).get('/state.json');
 
     expect(responce.body).toEqual({
@@ -75,5 +86,41 @@ describe('App', () => {
       lastChangedStatusTime: mockSettings.lastChangedStatusTime,
     });
     expect(responce.status).toEqual(200);
+  });
+
+  test('check StateReciever constuctor - no eventHandlers', async () => {
+    SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
+
+    jest.isolateModules(() => {
+      require('../app');
+    });
+
+    expect(StateReciever).toHaveBeenCalledTimes(1);
+    expect(StateReciever).toHaveBeenCalledWith(
+      expect.any(SettingsStorage),
+      null
+    );
+  });
+
+  test('check StateReciever constuctor - has eventHandlers', async () => {
+    SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
+
+    const eventsHandlersMock = {
+      statusChanged: jest.fn(),
+      itemsChanged: jest.fn(),
+    };
+
+    jest.doMock('../eventsHandlers', () => eventsHandlersMock, {
+      virtual: true,
+    });
+    jest.isolateModules(() => {
+      require('../app');
+    });
+
+    expect(StateReciever).toHaveBeenCalledTimes(1);
+    expect(StateReciever).toHaveBeenCalledWith(
+      expect.any(SettingsStorage),
+      eventsHandlersMock
+    );
   });
 });

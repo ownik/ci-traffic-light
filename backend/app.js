@@ -5,8 +5,15 @@ const logger = require('morgan');
 const SettingsStorage = require('./src/SettingsStorage');
 const StateReciever = require('./src/StateReciever');
 
+let eventsHandlers;
+try {
+  eventsHandlers = require('./eventsHandlers');
+} catch (e) {
+  eventsHandlers = null;
+}
+
 const settingsStorage = new SettingsStorage('./settings.json');
-const stateReciever = new StateReciever(settingsStorage);
+const stateReciever = new StateReciever(settingsStorage, eventsHandlers);
 
 const app = express();
 
