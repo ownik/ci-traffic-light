@@ -23,18 +23,18 @@ jobs:
         id: get_version
         run: |
           TAG_NAME=${{github.ref_name}}
-          echo ::set-output name=VERSION::${TAG_NAME//./-}
+          echo ::set-output name=VERSION::${TAG_NAME//./_}
       - name: Archiving binaries
         run: |
-          zip ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip ci-traffic-light-win.exe
-          tar -cvzf ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}.tar.gz ci-traffic-light-linux
-          zip ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}.zip ci-traffic-light-macos
+          zip ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-win-x64.zip ci-traffic-light-win.exe
+          tar -cvzf ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz ci-traffic-light-linux
+          zip ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-macos-x64.zip ci-traffic-light-macos
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip
-            ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}.tar.gz
-            ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}.zip
+            ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-win-x64.zip
+            ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz
+            ci-traffic-light-${{ steps.get_version.outputs.VERSION }}-macos-x64.zip
           draft: true
           body_path: CHANGELOG.md
