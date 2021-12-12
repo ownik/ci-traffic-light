@@ -26,14 +26,16 @@ jobs:
           echo ::set-output name=VERSION::${TAG_NAME//./_}
       - name: Adding tagname to binaries
         run: |
-          mv ci-traffic-light-win.exe ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.exe
           mv ci-traffic-light-linux ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }} 
           mv ci-traffic-light-macos ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
+      - name: Archiving binaries
+        run: |
+          zip ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip ci-traffic-light-win.exe
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.exe
+            ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip
             ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}
             ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
           draft: true
