@@ -267,10 +267,11 @@ describe('StateReciever', () => {
     jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(itemsChangedMock).toHaveBeenCalledTimes(1);
-    expect(itemsChangedMock).toHaveBeenCalledWith('fail', [
-      { id: 'Build 1' },
-      { id: 'Build 2' },
-    ]);
+    expect(itemsChangedMock).toHaveBeenCalledWith(
+      'fail',
+      [{ id: 'Build 1' }, { id: 'Build 2' }],
+      [{ id: 'Build 2' }]
+    );
     itemsChangedMock.mockClear();
 
     Teamcity.prototype.checkState.mockResolvedValueOnce(state1);

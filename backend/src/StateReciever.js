@@ -47,7 +47,14 @@ class StateReciever {
           const currentItemsIds = this._state.items.map((i) => i.id).sort();
           const newItemsIds = state.items.map((i) => i.id).sort();
           if (!ArrayUtils.equals(currentItemsIds, newItemsIds)) {
-            this._eventsHandlers.itemsChanged(state.status, state.items);
+            const newItems = state.items.filter(
+              (i) => !currentItemsIds.includes(i.id)
+            );
+            this._eventsHandlers.itemsChanged(
+              state.status,
+              state.items,
+              newItems
+            );
           }
         }
         this._state = state;
