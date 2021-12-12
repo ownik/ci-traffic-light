@@ -29,12 +29,10 @@ jobs:
         working-directory: ./
         env:
           CI: true
-      - name: Install codecov
-        run: npm install -g codecov
-        working-directory: ./
-      - name: Codecov
-        run: npm run codecov
-        working-directory: ./
-        env:
-          CI: true
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Test & publish code coverage
+          uses: paambaati/codeclimate-action@v3.0.0
+          env:
+            CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+          with:
+            coverageCommand: npm run codecov
+            debug: true
