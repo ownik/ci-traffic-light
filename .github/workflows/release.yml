@@ -23,20 +23,18 @@ jobs:
         id: get_version
         run: |
           TAG_NAME=${{github.ref_name}}
-          echo ::set-output name=VERSION::${TAG_NAME//./_}
-      - name: Adding tagname to binaries
-        run: |
-          mv ci-traffic-light-linux ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }} 
-          mv ci-traffic-light-macos ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
+          echo ::set-output name=VERSION::${TAG_NAME//./-}
       - name: Archiving binaries
         run: |
           zip ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip ci-traffic-light-win.exe
+          tar -cvzf ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}.tar.gz ci-traffic-light-linux
+          zip ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}.zip ci-traffic-light-macos
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.zip
-            ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}
-            ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
+            ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}.tar.gz
+            ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}.zip
           draft: true
           body_path: CHANGELOG.md
