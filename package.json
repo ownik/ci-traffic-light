@@ -1,5 +1,5 @@
 {
-  "name": "ci-traffic-lightr",
+  "name": "ci-traffic-light",
   "version": "1.0.0",
   "description": "Continuous integration system state indicator (also knowns as Traffic light)",
   "private": true,
@@ -7,7 +7,7 @@
     "test": "jest",
     "test:frontend": "jest --projects frontend",
     "test:backend": "jest --projects backend",
-    "codecov": "jest --ci --coverage && codecov",
+    "codecov": "jest --ci --coverage",
     "codecov:frontend": "jest --projects frontend --ci --coverage",
     "codecov:backend": "jest --projects backend --ci --coverage",
     "start": "cd frontend && npm run-script build && cd ../backend && npm run-script start",
