@@ -1,6 +1,6 @@
 {
-  "name": "ci-state-indicator-frontend",
-  "version": "0.1.0",
+  "name": "ci-traffic-light-frontend",
+  "version": "1.0.0",
   "description": "Frontend for continuous integration system state indicator (also knowns as Traffic light)",
   "private": true,
   "scripts": {

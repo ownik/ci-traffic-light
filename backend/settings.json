@@ -3,5 +3,19 @@
   "auth": { "username": "root", "password": "123456" },
   "branch": "(default:true)",
   "buildTypes": ["CiIndicatorTest_Build1", "CiIndicatorTest_Build2"],
-  "updateStateInterval": 10000
+  "updateStateInterval": 10000,
+  "onChangeStatus": {
+    "cmd": "send.exe \"$message\"",
+    "pattern": {
+      "success": "Everything is ok!",
+      "fail": "Tests failed.\n $failedItems"
+    },
+    "itemPattern": "$item.name $item.url"
+  },
+  "onStatusHanging": {
+    "cmd": "send.exe \"$message\"",
+    "pattern": {
+      "fail": "In failed status $time"
+    }
+  }
 }

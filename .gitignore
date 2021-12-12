@@ -1,7 +1,7 @@
 node_modules
 public
 coverage
-ci-state-indicator-win.exe
-ci-state-indicator-linux
-ci-state-indicator-macos
+ci-traffic-light-win.exe
+ci-traffic-light-linux
+ci-traffic-light-macos
 settings.json

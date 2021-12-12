@@ -30,15 +30,15 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
       - name: Adding tagname to binaries
         run: |
-          mv ci-state-indicator-win.exe ci-state-indicator-win-${{ steps.get_version.outputs.VERSION }}.exe
-          mv ci-state-indicator-linux ci-state-indicator-linux-${{ steps.get_version.outputs.VERSION }} 
-          mv ci-state-indicator-macos ci-state-indicator-macos-${{ steps.get_version.outputs.VERSION }}
+          mv ci-traffic-light-win.exe ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.exe
+          mv ci-traffic-light-linux ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }} 
+          mv ci-traffic-light-macos ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
       - name: Publish Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ci-state-indicator-win-${{ steps.get_version.outputs.VERSION }}.exe
-            ci-state-indicator-linux-${{ steps.get_version.outputs.VERSION }}
-            ci-state-indicator-macos-${{ steps.get_version.outputs.VERSION }}
+            ci-traffic-light-win-${{ steps.get_version.outputs.VERSION }}.exe
+            ci-traffic-light-linux-${{ steps.get_version.outputs.VERSION }}
+            ci-traffic-light-macos-${{ steps.get_version.outputs.VERSION }}
           draft: true
           body_path: CHANGELOG.md
