@@ -1,4 +1,5 @@
 const request = require('supertest');
+const path = require('path');
 const SettingsStorage = require('../src/SettingsStorage');
 const StateReciever = require('../src/StateReciever');
 
@@ -55,6 +56,12 @@ describe('App', () => {
       app = require('../app');
     });
 
+    expect(SettingsStorage).toHaveBeenCalledTimes(1);
+    expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(1);
+
+    SettingsStorage.mockClear();
+    SettingsStorage.prototype.settings.mockClear();
+
     expect(StateReciever).toHaveBeenCalledTimes(1);
     expect(StateReciever).toHaveBeenCalledWith(
       expect.any(SettingsStorage),
@@ -63,7 +70,7 @@ describe('App', () => {
 
     const responce = await request(app).get('/settings.json');
 
-    expect(SettingsStorage).toHaveBeenCalledTimes(1);
+    expect(SettingsStorage).toHaveBeenCalledTimes(0);
     expect(SettingsStorage.prototype.settings).toHaveBeenCalledTimes(1);
 
     expect(responce.status).toEqual(200);
@@ -110,7 +117,7 @@ describe('App', () => {
       itemsChanged: jest.fn(),
     };
 
-    jest.doMock('../eventsHandlers', () => eventsHandlersMock, {
+    jest.doMock(path.resolve('./eventsHandlers'), () => eventsHandlersMock, {
       virtual: true,
     });
     jest.isolateModules(() => {

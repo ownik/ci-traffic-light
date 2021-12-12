@@ -7,7 +7,7 @@ const StateReciever = require('./src/StateReciever');
 
 let eventsHandlers;
 try {
-  eventsHandlers = require('./eventsHandlers');
+  eventsHandlers = require(path.resolve('./eventsHandlers'));
 } catch (e) {
   eventsHandlers = null;
 }
