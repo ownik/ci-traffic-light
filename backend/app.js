@@ -16,7 +16,7 @@ const settingsStorage = new SettingsStorage('./settings.json');
 const stateReciever = new StateReciever(settingsStorage, eventsHandlers);
 
 const app = express();
-
+app.set('port', settingsStorage.settings().port || 8080);
 app.use(logger('dev'));
 app.use(express.json());
 app.set('json spaces', 2);
