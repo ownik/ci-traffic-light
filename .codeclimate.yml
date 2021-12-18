@@ -1,6 +1,6 @@
 plugins:
   eslint:
     enabled: true
-    channel: eslint-5
+    channel: eslint-7
 exclude_patterns:
-- "**/__tests__/"
+  - '**/__tests__/'
