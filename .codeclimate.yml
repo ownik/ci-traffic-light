@@ -2,5 +2,12 @@ plugins:
   eslint:
     enabled: true
     channel: eslint-7
+    config:
+      extensions:
+        - .es6
+        - .js
+        - .jsx
+        - .mjs
+        - .vue
 exclude_patterns:
   - '**/__tests__/'
