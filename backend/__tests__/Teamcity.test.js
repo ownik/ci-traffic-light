@@ -17,23 +17,22 @@ jest.mock('axios', () => ({
 }));
 
 describe('Teamcity', () => {
-  const teamcity = new Teamcity({
-    serverUrl: 'some url',
-    auth: { username: 'root', password: '123456' },
-    branch: 'some-branch',
-  });
-
   afterEach(() => {
     mockAxios.get.mockClear();
   });
 
   describe('lastFinishedFailedBuildUrl', () => {
-    test('test axios arguments', async () => {
+    test('test axios arguments http based auth', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: makeBuildsJson('SomeBuildTypeId', 'SUCCESS'),
         })
       );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { username: 'root', password: '123456' },
+        branch: 'some-branch',
+      });
       await teamcity.lastFinishedFailedBuildUrl('SomeBuildTypeId');
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -41,6 +40,31 @@ describe('Teamcity', () => {
         {
           headers: { Accept: 'application/json' },
           auth: { username: 'root', password: '123456' },
+          withCredentials: true,
+        }
+      );
+    });
+
+    test('test axios arguments token based auth', async () => {
+      mockAxios.get.mockImplementationOnce(() =>
+        Promise.resolve({
+          data: makeBuildsJson('SomeBuildTypeId', 'SUCCESS'),
+        })
+      );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
+      await teamcity.lastFinishedFailedBuildUrl('SomeBuildTypeId');
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'some url/app/rest/latest/builds?locator=branch:some-branch,failedToStart:any,running:false,canceled:false,count:1,buildType:(SomeBuildTypeId)',
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer sometoken123123asdasdertscgsfgsdf',
+          },
         }
       );
     });
@@ -64,6 +88,11 @@ describe('Teamcity', () => {
           data: makeBuildsJson('SomeBuildTypeId', state),
         })
       );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
       expect(
         await teamcity.lastFinishedFailedBuildUrl('SomeBuildTypeId')
       ).toEqual(expected);
@@ -71,19 +100,26 @@ describe('Teamcity', () => {
   });
 
   describe('runningBuilds', () => {
-    test('test axios arguments', async () => {
+    test('test axios arguments token based auth', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: makeRunningBuildsJson('SomeBuildTypeId', 'SUCCESS'),
         })
       );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
       await teamcity.runningBuilds('SomeBuildTypeId');
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
         'some url/app/rest/latest/builds?locator=branch:some-branch,failedToStart:any,running:true,canceled:false,buildType:(SomeBuildTypeId)',
         {
-          headers: { Accept: 'application/json' },
-          auth: { username: 'root', password: '123456' },
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer sometoken123123asdasdertscgsfgsdf',
+          },
         }
       );
     });
@@ -107,6 +143,11 @@ describe('Teamcity', () => {
           data: makeRunningBuildsJson('SomeBuildTypeId', state),
         })
       );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
       expect(await teamcity.runningBuilds('SomeBuildTypeId')).toEqual(
         expected != null
           ? [
@@ -127,13 +168,20 @@ describe('Teamcity', () => {
           data: makeInvestigationJson([]),
         })
       );
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
       await teamcity.fetchAllInvestigation();
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
         'some url/app/rest/latest/investigations',
         {
-          headers: { Accept: 'application/json' },
-          auth: { username: 'root', password: '123456' },
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer sometoken123123asdasdertscgsfgsdf',
+          },
         }
       );
     });
@@ -145,6 +193,11 @@ describe('Teamcity', () => {
             data: makeInvestigationJson(json),
           })
         );
+        const teamcity = new Teamcity({
+          serverUrl: 'some url',
+          auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+          branch: 'some-branch',
+        });
         expect(await teamcity.fetchAllInvestigation()).toEqual(expected);
       });
 
@@ -242,6 +295,12 @@ describe('Teamcity', () => {
         })
       );
 
+      const teamcity = new Teamcity({
+        serverUrl: 'some url',
+        auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+        branch: 'some-branch',
+      });
+
       expect(await teamcity.fetchProjectsStructure()).toEqual(
         expectedStructure
       );
@@ -253,6 +312,12 @@ describe('Teamcity', () => {
     let lastFinishedFailedBuildUrlMock;
     let runningBuildsMock;
     let fetchProjectsStructureMock;
+
+    const teamcity = new Teamcity({
+      serverUrl: 'some url',
+      auth: { token: 'sometoken123123asdasdertscgsfgsdf' },
+      branch: 'some-branch',
+    });
 
     beforeEach(() => {
       fetchAllInvestigationMock = jest.spyOn(teamcity, 'fetchAllInvestigation');

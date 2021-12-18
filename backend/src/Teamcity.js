@@ -16,12 +16,20 @@ class Teamcity {
   }
 
   httpGet(url) {
-    return axios.get(url, {
-      headers: {
-        Accept: 'application/json',
-      },
-      auth: this.auth,
-    });
+    return this.auth.token
+      ? axios.get(url, {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${this.auth.token}`,
+          },
+        })
+      : axios.get(url, {
+          headers: {
+            Accept: 'application/json',
+          },
+          auth: this.auth,
+          withCredentials: true,
+        });
   }
 
   async fetchAllInvestigation() {
