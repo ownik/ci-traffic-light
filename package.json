@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:frontend": "jest --projects frontend",
+    "test:frontend:updateSnapshot": "jest --projects frontend --updateSnapshot",
     "test:backend": "jest --projects backend",
     "codecov": "jest --ci --coverage",
     "codecov:frontend": "jest --projects frontend --ci --coverage",

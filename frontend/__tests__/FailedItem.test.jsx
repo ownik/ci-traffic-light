@@ -11,7 +11,7 @@ describe('FailedItem', () => {
   test('display name render as text', () => {
     expect(
       shallow(<FailedItem displayName="Some display test" />).html()
-    ).toEqual('<li><span>Some display test</span></li>');
+    ).toMatchSnapshot();
   });
 
   test('display name with href render as link', () => {
@@ -22,9 +22,7 @@ describe('FailedItem', () => {
           href="http://localhost/href"
         />
       ).html()
-    ).toEqual(
-      '<li><span><a href="http://localhost/href">Some display test</a></span></li>'
-    );
+    ).toMatchSnapshot();
   });
 
   test('no running - no progress spinner', () => {

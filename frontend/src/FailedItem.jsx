@@ -4,9 +4,7 @@ import ProgressSpinner from './ProgressSpinner';
 
 const FailedItem = ({ displayName, href, running }) => (
   <li>
-    <span>
-      {!href || href === '' ? displayName : <a href={href}>{displayName}</a>}
-    </span>
+    {!href || href === '' ? displayName : <a href={href}>{displayName}</a>}
     {running && <ProgressSpinner />}
   </li>
 );

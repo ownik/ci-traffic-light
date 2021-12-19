@@ -7,6 +7,7 @@ div.failed-item-list {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  max-width: 50%;
 }
 
 div.failed-item-list > ul {
@@ -15,6 +16,8 @@ div.failed-item-list > ul {
 
 div.failed-item-list > ul > li {
   transition: opacity 1s;
+  display: flex;
+  align-items: center;
 }
 
 div.failed-item-list > ul > li.enter {
@@ -33,17 +36,27 @@ div.failed-item-list > ul > li.exit-active {
   opacity: 0;
 }
 
-div.failed-item-list > ul > li > span > a:link,
+div.failed-item-list > ul > li > a,
+a:visited {
+  display: inline-block;
+  line-height: 0.85;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-bottom: 17px;
+}
+
+div.failed-item-list > ul > li > a:link,
 a:visited {
   color: white;
   text-decoration: none;
 }
 
-div.failed-item-list > ul > li > span > a:hover,
+div.failed-item-list > ul > li > a:hover,
 a:active {
   color: white;
   text-decoration: none;
   border-bottom: 2px solid white;
-  display: inline-block;
-  line-height: 0.85;
+  margin-bottom: 15px;
 }

@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FailedItem display name render as text 1`] = `"<li>Some display test</li>"`;
+
+exports[`FailedItem display name with href render as link 1`] = `"<li><a href=\\"http://localhost/href\\">Some display test</a></li>"`;
