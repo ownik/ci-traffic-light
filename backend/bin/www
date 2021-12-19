@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+const logger = require('../logger');
 const app = require('../app');
 const http = require('http');
 const open = require('open');
@@ -18,7 +18,7 @@ const port = normalizePort(app.get('port'));
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -35,16 +35,16 @@ server.on('error', (error) => {
     throw error;
   }
 
-  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      logger.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      logger.error(bind + ' is already in use');
       process.exit(1);
       break;
     default:
@@ -56,9 +56,9 @@ server.on('error', (error) => {
  * Event listener for HTTP server "listening" event.
  */
 server.on('listening', () => {
-  var addr = server.address();
-  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  console.log('Running on ' + bind);
+  const addr = server.address();
+  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  logger.info('Running on ' + bind);
   open('http://localhost:' + port);
 });
 
@@ -67,7 +67,7 @@ server.on('listening', () => {
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe

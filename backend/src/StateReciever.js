@@ -1,5 +1,6 @@
 const { Teamcity } = require('./Teamcity');
 const ArrayUtils = require('./ArrayUtils');
+const logger = require('winston');
 
 class StateReciever {
   constructor(settingsStorage, eventsHandlers) {
@@ -8,6 +9,7 @@ class StateReciever {
     const settings = this._settingsStorage.settings();
     this._teamcity = new Teamcity(settings);
     this._state = {};
+    logger.info(`updateStateInterval: ${settings.updateStateInterval}`);
     this.updateState(true).then(() => {
       this._intervalId = setInterval(() => {
         this.updateState(false);
@@ -36,6 +38,7 @@ class StateReciever {
   }
 
   updateState(init) {
+    const startUpdateTime = Date.now();
     return this._teamcity
       .checkState(this._settingsStorage.settings().buildTypes)
       .then((state) => {
@@ -58,6 +61,9 @@ class StateReciever {
           }
         }
         this._state = state;
+        logger.info(
+          `StateReciever->updateState for ${Date.now() - startUpdateTime}ms`
+        );
       });
   }
 

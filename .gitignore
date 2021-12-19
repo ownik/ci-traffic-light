@@ -5,3 +5,6 @@ ci-traffic-light-win.exe
 ci-traffic-light-linux
 ci-traffic-light-macos
 settings.json
+eventsHandlers.js
+_eventsHandlers.js
+server.log
