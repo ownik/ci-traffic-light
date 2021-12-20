@@ -2,6 +2,7 @@ const request = require('supertest');
 const path = require('path');
 const SettingsStorage = require('../src/SettingsStorage');
 const StateReciever = require('../src/StateReciever');
+const winston = require('winston');
 
 jest.mock('../src/SettingsStorage');
 jest.mock('../src/StateReciever');
@@ -101,6 +102,32 @@ describe('App', () => {
     jest.isolateModules(() => {
       require('../app');
     });
+
+    expect(StateReciever).toHaveBeenCalledTimes(1);
+    expect(StateReciever).toHaveBeenCalledWith(
+      expect.any(SettingsStorage),
+      null
+    );
+  });
+
+  test('check StateReciever constuctor - has eventHandlers with error', async () => {
+    SettingsStorage.prototype.settings.mockReturnValue(mockSettings);
+
+    jest.doMock(
+      path.resolve('./eventsHandlers'),
+      () => {
+        throw new Error('test');
+      },
+      {
+        virtual: true,
+      }
+    );
+    jest.isolateModules(() => {
+      require('../app');
+    });
+
+    expect(winston.error).toHaveBeenCalledTimes(1);
+    expect(winston.error).toHaveBeenCalledWith('Error: test');
 
     expect(StateReciever).toHaveBeenCalledTimes(1);
     expect(StateReciever).toHaveBeenCalledWith(
