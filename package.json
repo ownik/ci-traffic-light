@@ -4,7 +4,7 @@
   "description": "Continuous integration system state indicator (also knowns as Traffic light)",
   "private": true,
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "test:frontend": "jest --projects frontend",
     "test:frontend:updateSnapshot": "jest --projects frontend --updateSnapshot",
     "test:backend": "jest --projects backend",
