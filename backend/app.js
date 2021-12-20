@@ -22,22 +22,7 @@ const app = express();
 app.set('port', settingsStorage.settings().port || 8080);
 app.use(
   expressWinston.logger({
-    transports: [
-      new winston.transports.Console(),
-      new winston.transports.File({ filename: 'server.log' }),
-    ],
-    format: winston.format.combine(
-      winston.format((info) => {
-        info.level = info.level.toUpperCase();
-        return info;
-      })(),
-      winston.format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:SS',
-      }),
-      winston.format.printf(
-        (info) => `[${info.timestamp}] ${info.level}: ${info.message}`
-      )
-    ),
+    winstonInstance: winston,
     meta: false,
     expressFormat: true,
     skip: (req, res) => {
