@@ -6,7 +6,6 @@
 const logger = require('../logger');
 const app = require('../app');
 const http = require('http');
-const open = require('open');
 
 /**
  * Get port from environment and store in Express.
@@ -59,7 +58,6 @@ server.on('listening', () => {
   const addr = server.address();
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   logger.info('Running on ' + bind);
-  open('http://localhost:' + port);
 });
 
 /**
