@@ -9,7 +9,6 @@ class StateReciever {
     const settings = this._settingsStorage.settings();
     this._teamcity = new Teamcity(settings);
     this._state = {};
-    logger.info(`updateStateInterval: ${settings.updateStateInterval}`);
     this.updateState(true).then(() => {
       this._intervalId = setInterval(() => {
         this.updateState(false);
