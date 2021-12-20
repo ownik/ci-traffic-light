@@ -16,7 +16,7 @@ describe('ProjectsStructure', () => {
     { id: 'Windows', expectedName: 'Windows Project Name' },
     { id: 'WindowsSubProject1Build3', expectedName: 'Build 3' },
     { id: 'NotExistedId', expectedName: 'NotExistedId' },
-  ])('$expected when state is $state', async ({ id, expectedName }) => {
+  ])('$expectedName for build id $id', async ({ id, expectedName }) => {
     expect(structure.getName(id)).toEqual(expectedName);
   });
 
