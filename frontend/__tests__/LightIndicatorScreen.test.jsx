@@ -14,26 +14,24 @@ describe('LightIndicatorScreen', () => {
     expect(wrapper.type()).toBe('div');
   });
 
-  test('check colors props - default status', () => {
+  test('check default status class name', () => {
     const wrapper = shallow(<LightIndicatorScreen />);
-    expect(wrapper.get(0).props.style).toEqual({
-      background: 'linear-gradient(#FF416C, #FF4B2B)',
-    });
+    expect(wrapper.props()).toHaveProperty(
+      'className',
+      'indicator-screen idle'
+    );
   });
 
-  test('check colors props - fail status', () => {
-    const wrapper = shallow(<LightIndicatorScreen status="fail" />);
-    expect(wrapper.get(0).props.style).toEqual({
-      background: 'linear-gradient(#FF416C, #FF4B2B)',
-    });
-  });
-
-  test('check colors props - success status', () => {
-    const wrapper = shallow(<LightIndicatorScreen status="success" />);
-    expect(wrapper.get(0).props.style).toEqual({
-      background: 'linear-gradient(#11998E, #38EF7D)',
-    });
-  });
+  test.each([{ status: 'success' }, { status: 'fail' }])(
+    '$expectedColor for status $status',
+    async ({ status }) => {
+      const wrapper = shallow(<LightIndicatorScreen status={status} />);
+      expect(wrapper.props()).toHaveProperty(
+        'className',
+        `indicator-screen ${status}`
+      );
+    }
+  );
 
   test('correct render children', () => {
     const MockContainer = () => <div></div>;

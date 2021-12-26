@@ -3,3 +3,30 @@ div.indicator-screen {
   margin: 0;
   transition: all 1s ease;
 }
+
+div.indicator-screen.success {
+  background: linear-gradient(#11998e, #38ef7d);
+}
+div.indicator-screen.investigation {
+  background: linear-gradient(#ffc11e, #ffd600);
+}
+div.indicator-screen.fail {
+  background: linear-gradient(#ff416c, #ff4b2b);
+}
+div.indicator-screen.idle {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
