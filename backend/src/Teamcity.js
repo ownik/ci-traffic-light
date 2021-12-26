@@ -106,7 +106,7 @@ class Teamcity {
   }
 
   buildTypeWebUrl(buildTypeId) {
-    return `${this.serverUrl}/viewLog.html?buildTypeId=${buildTypeId}`;
+    return `${this.serverUrl}/viewType.html?buildTypeId=${buildTypeId}`;
   }
 
   async checkState(buildTypes) {

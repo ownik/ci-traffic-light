@@ -21,6 +21,17 @@ describe('Teamcity', () => {
     mockAxios.get.mockClear();
   });
 
+  test('buildTypeWebUrl', () => {
+    const teamcity = new Teamcity({
+      serverUrl: 'http://127.0.0.1:8111',
+      auth: { username: 'root', password: '123456' },
+      branch: 'some-branch',
+    });
+    expect(teamcity.buildTypeWebUrl('SomeBuildTypeId')).toEqual(
+      'http://127.0.0.1:8111/viewType.html?buildTypeId=SomeBuildTypeId'
+    );
+  });
+
   describe('lastFinishedFailedBuildUrl', () => {
     test('test axios arguments http based auth', async () => {
       mockAxios.get.mockImplementationOnce(() =>
